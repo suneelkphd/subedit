@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subedit - Photo Effects & Filters</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-ID" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #357ABD;
+            --accent-color: #4cc9f0;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --light-text: #6c757d;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark-text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 5%;
+        }
+
+        .navbar .logo h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .navbar .tagline {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .page-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .ad-sidebar {
+            width: 160px;
+            min-height: 600px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            max-width: 1200px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            padding: 2rem 0;
+        }
+
+        .effects-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .effects-bar {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .preview-column {
+            padding: 2rem;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .preview-box {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            min-height: 300px;
+            position: relative;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-box:hover {
+            border-color: var(--primary-color);
+        }
+
+        .preview-box.has-image {
+            border-color: #ced4da;
+            background-color: white;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            display: none;
+            object-fit: contain;
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-upload:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .btn-apply {
+            background-color: #20c997;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-apply:hover {
+            background-color: #1aa179;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .btn-download {
+            background-color: #dc3545;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 250px;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background-color: #bb2d3b;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .effects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .effect-option {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .effect-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .effect-option.active {
+            border-color: var(--primary-color);
+            background-color: #e8f1fc;
+        }
+
+        .effect-option img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        .effect-option span {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .adjustment-controls {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .adjustment-group {
+            margin-bottom: 15px;
+        }
+
+        .adjustment-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .adjustment-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #dee2e6;
+            border-radius: 10px;
+            outline: none;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        
+        /* Bootstrap's form-range class overrides our styles, 
+           so we need to be more specific with our selectors */
+        .adjustment-group input[type="range"].form-range {
+            height: 8px;
+            padding: 0;
+            background: #dee2e6 !important;
+            border: none;
+            opacity: 1;
+        }
+
+        .adjustment-group input[type="range"]::-webkit-slider-thumb,
+        .adjustment-group input[type="range"].form-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--primary-color) !important;
+            cursor: pointer;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+            margin-top: -5px;
+            opacity: 1;
+        }
+
+        .adjustment-group input[type="range"]::-moz-range-thumb,
+        .adjustment-group input[type="range"].form-range::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border: none;
+            border-radius: 50%;
+            background-color: var(--primary-color) !important;
+            cursor: pointer;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+            opacity: 1;
+        }
+        
+        .adjustment-group input[type="range"]::-webkit-slider-runnable-track,
+        .adjustment-group input[type="range"].form-range::-webkit-slider-runnable-track {
+            height: 8px;
+            background: #dee2e6;
+            border-radius: 10px;
+        }
+        
+        .adjustment-group input[type="range"]::-moz-range-track,
+        .adjustment-group input[type="range"].form-range::-moz-range-track {
+            height: 8px;
+            background: #dee2e6;
+            border-radius: 10px;
+        }
+
+        .adjustment-value {
+            display: inline-block;
+            width: 40px;
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+
+        @media (max-width: 992px) {
+            .preview-column {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .effects-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            }
+        }
+
+        .output-preview {
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            min-height: 300px;
+            position: relative;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            display: none;
+        }
+
+        .output-preview.has-image {
+            display: block;
+            background-color: white;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            z-index: 10;
+        }
+
+        .output-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand d-flex flex-column" href="index.html">
+                <h1 class="logo">Subedit</h1>
+                <span class="tagline">sab kuch edit</span>
+            </a>
+            <div class="d-flex gap-3 align-items-center">
+                <a href="compress.html" class="d-none d-md-inline-block text-decoration-none text-secondary">Compress</a>
+                <a href="resize.html" class="d-none d-md-inline-block text-decoration-none text-secondary">Resize</a>
+                <a href="remove-background.html" class="d-none d-md-inline-block text-decoration-none text-secondary">Remove BG</a>
+                <a href="convert-jpg.html" class="d-none d-md-inline-block text-decoration-none text-secondary">Convert</a>
+                <a href="photo-effects.html" class="d-none d-md-inline-block text-decoration-none" style="color: var(--primary-color); font-weight: 500;">Effects</a>
+                <button class="btn btn-primary">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Privacy Notice Banner -->
+    <div class="bg-light border-bottom py-2 mt-5">
+        <div class="container-fluid text-center">
+            <i class="fas fa-shield-alt text-primary me-2"></i>
+            <small>Your privacy matters! All processing happens in your browser - we never store your files. <a href="privacy.html" class="text-primary">Learn more</a></small>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header text-center">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Photo Effects & Filters</h1>
+            <p class="fs-5">Apply beautiful effects and adjustments to enhance your photos instantly</p>
+        </div>
+    </header>
+
+    <div class="page-container">
+        <!-- Left Sidebar Ad -->
+        <aside class="ad-sidebar d-none d-xl-block">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="YOUR-ADSENSE-ID"
+                 data-ad-slot="LEFT-AD-SLOT"
+                 data-ad-format="vertical"
+                 data-full-width-responsive="false"></ins>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="effects-container">
+                <div class="row g-0">
+                    <!-- Preview Column -->
+                    <div class="col-lg-6 preview-column">
+                        <h4 class="fw-bold mb-3">Upload Your Image</h4>
+                        <div class="preview-box" id="previewBox">
+                            <div class="preview-label">Original</div>
+                            <i class="fas fa-cloud-upload-alt fs-1 text-secondary mb-3"></i>
+                            <p class="mb-3">Drag & drop your image here or</p>
+                            <button class="btn btn-upload" id="uploadBtn">
+                                <i class="fas fa-upload me-2"></i>Upload Image
+                            </button>
+                            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                            <img src="" alt="Preview" class="preview-img" id="previewImg">
+                        </div>
+                        
+                        <div class="output-preview" id="outputPreview">
+                            <div class="preview-label">Effect Preview</div>
+                            <img src="" alt="Output Preview" class="output-img" id="outputImg">
+                        </div>
+                        
+                        <div class="mt-4 text-center d-none" id="downloadSection">
+                            <button class="btn btn-download" id="downloadBtn">
+                                <i class="fas fa-download me-2"></i>Download Image
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Effects Column -->
+                    <div class="col-lg-6 p-4">
+                        <h4 class="fw-bold mb-3">Choose an Effect</h4>
+                        
+                        <div class="effects-grid">
+                            <div class="effect-option active" data-effect="original">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%23f8f9fa'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%23495057'%3EOriginal%3C/text%3E%3C/svg%3E" alt="Original">
+                                <span>Original</span>
+                            </div>
+                            <div class="effect-option" data-effect="grayscale">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%23d1d1d1'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%23333'%3EGrayscale%3C/text%3E%3C/svg%3E" alt="Grayscale">
+                                <span>Grayscale</span>
+                            </div>
+                            <div class="effect-option" data-effect="sepia">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%23d2b48c'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%23704214'%3ESepia%3C/text%3E%3C/svg%3E" alt="Sepia">
+                                <span>Sepia</span>
+                            </div>
+                            <div class="effect-option" data-effect="vintage">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%23ecdeb8'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%23a87e5c'%3EVintage%3C/text%3E%3C/svg%3E" alt="Vintage">
+                                <span>Vintage</span>
+                            </div>
+                            <div class="effect-option" data-effect="retro">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%23e5d1a4'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%238b5a2b'%3ERetro%3C/text%3E%3C/svg%3E" alt="Retro">
+                                <span>Retro</span>
+                            </div>
+                            <div class="effect-option" data-effect="hdr">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%232b90d9'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%23ffffff'%3EHDR%3C/text%3E%3C/svg%3E" alt="HDR">
+                                <span>HDR</span>
+                            </div>
+                            <div class="effect-option" data-effect="clarendon">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%234a6fa5'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%23ffffff'%3EClarendon%3C/text%3E%3C/svg%3E" alt="Clarendon">
+                                <span>Clarendon</span>
+                            </div>
+                            <div class="effect-option" data-effect="xpro">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='%23693c72'/%3E%3Ctext x='60' y='40' font-family='Arial' font-size='12' text-anchor='middle' dominant-baseline='middle' fill='%23ffffff'%3EX-Pro%3C/text%3E%3C/svg%3E" alt="X-Pro">
+                                <span>X-Pro</span>
+                            </div>
+                        </div>
+                        
+                        <div class="adjustment-controls">
+                            <h5 class="fw-bold mb-3">Fine-tune Adjustments</h5>
+                            
+                            <div class="adjustment-group">
+                                <label for="brightness">Brightness <span class="adjustment-value" id="brightnessValue">0</span></label>
+                                <input type="range" id="brightness" min="-100" max="100" value="0" class="slider form-range">
+                            </div>
+                            
+                            <div class="adjustment-group">
+                                <label for="contrast">Contrast <span class="adjustment-value" id="contrastValue">0</span></label>
+                                <input type="range" id="contrast" min="-100" max="100" value="0" class="slider form-range">
+                            </div>
+                            
+                            <div class="adjustment-group">
+                                <label for="saturation">Saturation <span class="adjustment-value" id="saturationValue">0</span></label>
+                                <input type="range" id="saturation" min="-100" max="100" value="0" class="slider form-range">
+                            </div>
+                            
+                            <div class="adjustment-group">
+                                <label for="vibrance">Vibrance <span class="adjustment-value" id="vibranceValue">0</span></label>
+                                <input type="range" id="vibrance" min="-100" max="100" value="0" class="slider form-range">
+                            </div>
+                            
+                            <div class="adjustment-group">
+                                <label for="sharpness">Sharpness <span class="adjustment-value" id="sharpnessValue">0</span></label>
+                                <input type="range" id="sharpness" min="0" max="100" value="0" class="slider form-range">
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button class="btn btn-apply" id="applyBtn">
+                                    <i class="fas fa-magic me-2"></i>Apply Effects
+                                </button>
+                                <button class="btn btn-outline-secondary" id="resetBtn">
+                                    <i class="fas fa-undo me-2"></i>Reset All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- How it Works Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3">How to Use Photo Effects</h2>
+                    <ol class="mb-0">
+                        <li class="mb-2">Upload your image by dragging and dropping or clicking the upload button</li>
+                        <li class="mb-2">Select a filter from the available options to apply a preset look</li>
+                        <li class="mb-2">Fine-tune your image using the adjustment sliders for brightness, contrast, etc.</li>
+                        <li class="mb-2">Click "Apply Effects" to see your changes</li>
+                        <li>Download your edited image when you're satisfied with the results</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-bolt text-primary me-2"></i>
+                                Instant Enhancement
+                            </h5>
+                            <p class="card-text">Apply professional-looking effects to your photos with just one click. No design skills required.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-sliders-h text-primary me-2"></i>
+                                Fine Control
+                            </h5>
+                            <p class="card-text">Adjust brightness, contrast, saturation, and more to get the perfect look for your image.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                100% Secure
+                            </h5>
+                            <p class="card-text">All processing happens in your browser. We never upload or store your photos on our servers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar Ad -->
+        <aside class="ad-sidebar d-none d-xl-block">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="YOUR-ADSENSE-ID"
+                 data-ad-slot="RIGHT-AD-SLOT"
+                 data-ad-format="vertical"
+                 data-full-width-responsive="false"></ins>
+        </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5>Subedit</h5>
+                    <p class="text-muted">Your complete online editing solution</p>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Tools</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="compress.html" class="btn btn-sm btn-outline-light">Compress</a>
+                        <a href="resize.html" class="btn btn-sm btn-outline-light">Resize</a>
+                        <a href="crop-image.html" class="btn btn-sm btn-outline-light">Crop</a>
+                        <a href="remove-background.html" class="btn btn-sm btn-outline-light">Remove BG</a>
+                        <a href="convert-jpg.html" class="btn btn-sm btn-outline-light">Convert</a>
+                        <a href="photo-effects.html" class="btn btn-sm btn-outline-light">Effects</a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Legal</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="privacy.html" class="text-decoration-none text-muted">Privacy Policy</a></li>
+                        <li><a href="terms.html" class="text-decoration-none text-muted">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="small text-muted mb-0">&copy; 2024 Subedit. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/camanjs@4.1.2/dist/caman.full.min.js"></script>
+    <script>
+        // File Upload & Preview
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const previewBox = document.getElementById('previewBox');
+        const previewImg = document.getElementById('previewImg');
+        const outputPreview = document.getElementById('outputPreview');
+        const outputImg = document.getElementById('outputImg');
+        const downloadSection = document.getElementById('downloadSection');
+        const effectOptions = document.querySelectorAll('.effect-option');
+        const applyBtn = document.getElementById('applyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        // Range sliders
+        const brightnessSlider = document.getElementById('brightness');
+        const contrastSlider = document.getElementById('contrast');
+        const saturationSlider = document.getElementById('saturation');
+        const vibranceSlider = document.getElementById('vibrance');
+        const sharpnessSlider = document.getElementById('sharpness');
+        
+        // Values display
+        const brightnessValue = document.getElementById('brightnessValue');
+        const contrastValue = document.getElementById('contrastValue');
+        const saturationValue = document.getElementById('saturationValue');
+        const vibranceValue = document.getElementById('vibranceValue');
+        const sharpnessValue = document.getElementById('sharpnessValue');
+        
+        // Original image data
+        let originalImage = null;
+        let currentEffect = 'original';
+        let isProcessing = false;
+        
+        // Event listeners
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        
+        // Drag and drop functionality
+        previewBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            previewBox.style.borderColor = '#4A90E2';
+            previewBox.style.backgroundColor = '#e8f4ff';
+        });
+        
+        previewBox.addEventListener('dragleave', () => {
+            previewBox.style.borderColor = '#dee2e6';
+            previewBox.style.backgroundColor = '#f8f9fa';
+        });
+        
+        previewBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            previewBox.style.borderColor = '#dee2e6';
+            previewBox.style.backgroundColor = '#f8f9fa';
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleImageUpload(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) {
+                handleImageUpload(fileInput.files[0]);
+            }
+        });
+        
+        // Handle image upload
+        function handleImageUpload(file) {
+            if (!file.type.match('image.*')) {
+                alert('Please upload an image file');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                originalImage = e.target.result;
+                
+                // Also set the output image
+                outputImg.src = e.target.result;
+                
+                previewImg.style.display = 'block';
+                previewBox.classList.add('has-image');
+                outputPreview.classList.add('has-image');
+                
+                // Hide the upload icon and text when image is shown
+                previewBox.querySelector('i').style.display = 'none';
+                previewBox.querySelector('p').style.display = 'none';
+                previewBox.querySelector('button').style.display = 'none';
+                
+                downloadSection.classList.remove('d-none');
+                
+                // Reset all effects and adjustments
+                resetEffects();
+                
+                // Wait for images to load then apply initial effect
+                previewImg.onload = function() {
+                    outputImg.onload = function() {
+                        applyCurrentEffect();
+                    };
+                };
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Effect options selection
+        effectOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                if (isProcessing) return;
+                
+                // Remove active class from all options
+                effectOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to selected option
+                option.classList.add('active');
+                
+                // Store selected effect
+                currentEffect = option.dataset.effect;
+                
+                // If we have an image, apply the effect
+                if (originalImage) {
+                    applyCurrentEffect();
+                }
+            });
+        });
+        
+        // Adjustment sliders
+        brightnessSlider.addEventListener('input', updateSliderValue);
+        contrastSlider.addEventListener('input', updateSliderValue);
+        saturationSlider.addEventListener('input', updateSliderValue);
+        vibranceSlider.addEventListener('input', updateSliderValue);
+        sharpnessSlider.addEventListener('input', updateSliderValue);
+        
+        // Adjustment sliders - apply effect when releasing slider
+        brightnessSlider.addEventListener('change', applyDelayedEffect);
+        contrastSlider.addEventListener('change', applyDelayedEffect);
+        saturationSlider.addEventListener('change', applyDelayedEffect);
+        vibranceSlider.addEventListener('change', applyDelayedEffect);
+        sharpnessSlider.addEventListener('change', applyDelayedEffect);
+        
+        function updateSliderValue(e) {
+            const slider = e.target;
+            const valueDisplay = document.getElementById(`${slider.id}Value`);
+            valueDisplay.textContent = slider.value > 0 ? `+${slider.value}` : slider.value;
+        }
+        
+        function applyDelayedEffect() {
+            if (originalImage) {
+                applyCurrentEffect();
+            }
+        }
+        
+        // Apply effects button
+        applyBtn.addEventListener('click', () => {
+            if (originalImage && !isProcessing) {
+                applyCurrentEffect();
+            } else if (!originalImage) {
+                alert('Please upload an image first');
+            }
+        });
+        
+        // Reset button
+        resetBtn.addEventListener('click', resetEffects);
+        
+        function resetEffects() {
+            // Reset sliders
+            brightnessSlider.value = 0;
+            contrastSlider.value = 0;
+            saturationSlider.value = 0;
+            vibranceSlider.value = 0;
+            sharpnessSlider.value = 0;
+            
+            // Reset displays
+            brightnessValue.textContent = '0';
+            contrastValue.textContent = '0';
+            saturationValue.textContent = '0';
+            vibranceValue.textContent = '0';
+            sharpnessValue.textContent = '0';
+            
+            // Reset effect selection
+            effectOptions.forEach(opt => opt.classList.remove('active'));
+            document.querySelector('[data-effect="original"]').classList.add('active');
+            currentEffect = 'original';
+            
+            // Reset image if we have one
+            if (originalImage) {
+                outputImg.src = originalImage;
+                applyCurrentEffect();
+            }
+        }
+        
+        // Create a temporary canvas for image processing
+        function createCanvas(image) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set proper dimensions
+            canvas.width = image.naturalWidth || 500;
+            canvas.height = image.naturalHeight || 500;
+            
+            // Draw the image onto the canvas
+            if (image.complete && image.naturalHeight !== 0) {
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            }
+            
+            return { canvas, ctx };
+        }
+        
+        // Apply current effect and adjustments
+        function applyCurrentEffect() {
+            if (!originalImage || isProcessing) return;
+            
+            isProcessing = true;
+            
+            // Show processing state
+            applyBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            applyBtn.disabled = true;
+            
+            // Create image element from original for processing
+            const tempImg = new Image();
+            tempImg.src = originalImage;
+            
+            tempImg.onload = function() {
+                // Create canvas for processing
+                const { canvas, ctx } = createCanvas(tempImg);
+                
+                // Create the Caman instance
+                try {
+                    const brightness = parseInt(brightnessSlider.value);
+                    const contrast = parseInt(contrastSlider.value);
+                    const saturation = parseInt(saturationSlider.value);
+                    const vibrance = parseInt(vibranceSlider.value);
+                    const sharpness = parseInt(sharpnessSlider.value);
+                    
+                    // Apply the effect directly with canvas API for speed
+                    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    let data = imageData.data;
+                    
+                    // Apply basic filters
+                    if (currentEffect === 'grayscale') {
+                        for (let i = 0; i < data.length; i += 4) {
+                            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                            data[i] = avg;
+                            data[i + 1] = avg;
+                            data[i + 2] = avg;
+                        }
+                    } else if (currentEffect === 'sepia') {
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+                            data[i + 1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+                            data[i + 2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+                        }
+                    } else if (currentEffect === 'vintage') {
+                        for (let i = 0; i < data.length; i += 4) {
+                            // Apply vintage look (yellowish tint with reduced saturation)
+                            data[i] = Math.min(255, data[i] * 1.1);
+                            data[i + 1] = Math.min(255, data[i + 1] * 1.05);
+                            data[i + 2] = Math.min(255, data[i + 2] * 0.9);
+                        }
+                    } else if (currentEffect === 'retro') {
+                        for (let i = 0; i < data.length; i += 4) {
+                            // Apply retro look (strong red-yellow tint)
+                            data[i] = Math.min(255, data[i] * 1.2);
+                            data[i + 1] = Math.min(255, data[i + 1] * 1.0);
+                            data[i + 2] = Math.min(255, data[i + 2] * 0.8);
+                        }
+                    } else if (currentEffect === 'hdr') {
+                        // Simplified HDR effect - increase contrast
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = 255 * Math.pow(data[i] / 255, 0.85);
+                            data[i + 1] = 255 * Math.pow(data[i + 1] / 255, 0.85);
+                            data[i + 2] = 255 * Math.pow(data[i + 2] / 255, 0.85);
+                        }
+                    } else if (currentEffect === 'clarendon') {
+                        // Clarendon - increase contrast and blue tones
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = Math.min(255, data[i] * 0.95);
+                            data[i + 1] = Math.min(255, data[i + 1] * 0.95);
+                            data[i + 2] = Math.min(255, data[i + 2] * 1.1);
+                        }
+                    } else if (currentEffect === 'xpro') {
+                        // X-Pro II - increase contrast and add purple tones
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = Math.min(255, data[i] * 1.0);
+                            data[i + 1] = Math.min(255, data[i + 1] * 0.9);
+                            data[i + 2] = Math.min(255, data[i + 2] * 1.1);
+                        }
+                    }
+                    
+                    // Apply adjustments
+                    // Brightness
+                    if (brightness !== 0) {
+                        const brightnessAdjust = brightness / 100 * 255;
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = Math.min(255, Math.max(0, data[i] + brightnessAdjust));
+                            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + brightnessAdjust));
+                            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + brightnessAdjust));
+                        }
+                    }
+                    
+                    // Contrast
+                    if (contrast !== 0) {
+                        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));
+                            data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128));
+                            data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128));
+                        }
+                    }
+                    
+                    // Saturation
+                    if (saturation !== 0) {
+                        const satFactor = 1 + saturation / 100;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            const avg = (r + g + b) / 3;
+                            data[i] = Math.min(255, Math.max(0, avg + satFactor * (r - avg)));
+                            data[i + 1] = Math.min(255, Math.max(0, avg + satFactor * (g - avg)));
+                            data[i + 2] = Math.min(255, Math.max(0, avg + satFactor * (b - avg)));
+                        }
+                    }
+                    
+                    // Vibrance (similar to saturation but preserves skin tones)
+                    if (vibrance !== 0) {
+                        const vibFactor = vibrance / 100;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            const max = Math.max(r, g, b);
+                            const avg = (r + g + b) / 3;
+                            const amt = ((max - avg) * 2 / 255) * vibFactor;
+                            
+                            data[i] = r + (r - avg) * amt;
+                            data[i + 1] = g + (g - avg) * amt;
+                            data[i + 2] = b + (b - avg) * amt;
+                        }
+                    }
+                    
+                    // Sharpness (basic implementation)
+                    if (sharpness > 0) {
+                        // We need to apply sharpness separately as it requires neighboring pixels
+                        // This is a simplified version - a real implementation would use a convolution matrix
+                        const sharpenFactor = sharpness / 100 * 0.5;
+                        const copy = new Uint8ClampedArray(data);
+                        
+                        for (let y = 1; y < canvas.height - 1; y++) {
+                            for (let x = 1; x < canvas.width - 1; x++) {
+                                const idx = (y * canvas.width + x) * 4;
+                                
+                                // Simple sharpening: current pixel intensified, surrounding pixels reduced
+                                for (let c = 0; c < 3; c++) {
+                                    const current = copy[idx + c];
+                                    const surrounding = (
+                                        copy[idx - canvas.width * 4 + c] + // top
+                                        copy[idx + canvas.width * 4 + c] + // bottom
+                                        copy[idx - 4 + c] + // left
+                                        copy[idx + 4 + c]   // right
+                                    ) / 4;
+                                    
+                                    data[idx + c] = Math.min(255, Math.max(0, 
+                                        current + sharpenFactor * (current - surrounding)
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Put the modified image data back on the canvas
+                    ctx.putImageData(imageData, 0, 0);
+                    
+                    // Update the output image
+                    const outputDataUrl = canvas.toDataURL('image/jpeg');
+                    outputImg.src = outputDataUrl;
+                    
+                    // Update the download button to use the processed image
+                    downloadBtn.onclick = function() {
+                        const link = document.createElement('a');
+                        link.download = 'edited-photo.jpg';
+                        link.href = outputDataUrl;
+                        link.click();
+                    };
+                } catch (error) {
+                    console.error("Error applying effect:", error);
+                    alert("There was an error applying the effect. Please try again.");
+                    outputImg.src = originalImage;
+                }
+                
+                // Reset the button state
+                setTimeout(() => {
+                    applyBtn.innerHTML = '<i class="fas fa-magic me-2"></i>Apply Effects';
+                    applyBtn.disabled = false;
+                    isProcessing = false;
+                }, 100);
+            };
+        }
+        
+        // Initialize AdSense
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</body>
+</html> 
