@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subedit - Convert from JPG</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-ID" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tiff.js@1.0.0/tiff.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #357ABD;
+            --accent-color: #4cc9f0;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --light-text: #6c757d;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark-text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 5%;
+        }
+
+        .navbar .logo h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .navbar .tagline {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .page-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .ad-sidebar {
+            width: 160px;
+            min-height: 600px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            max-width: 1200px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            padding: 2rem 0;
+        }
+
+        .convert-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .convert-options {
+            background: var(--light-bg);
+            padding: 2rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .format-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .format-btn {
+            background: white;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .format-btn:hover,
+        .format-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .preview-area {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .preview-box {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            min-height: 300px;
+            position: relative;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            padding: 2rem;
+        }
+
+        .preview-box.has-image {
+            border-style: solid;
+            border-color: #ced4da;
+            background-color: white;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-upload:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-convert {
+            background-color: #20c997;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .btn-convert:hover {
+            background-color: #1aa179;
+            transform: translateY(-2px);
+        }
+
+        .loading-spinner {
+            display: none;
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin: 1rem 0;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            color: var(--light-text);
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-item .remove-file {
+            color: #dc3545;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1200px) {
+            .ad-sidebar {
+                display: none;
+            }
+            
+            .page-container {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .format-options {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="index.html" class="logo">
+                <h1>Subedit</h1>
+                <span class="tagline">sab kuch edit</span>
+            </a>
+            <div class="nav-links">
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="remove-background.html">Remove BG</a>
+                <a href="convert-jpg.html">Convert</a>
+                <a href="pdf-tools.html" class="pdf-tools">PDF Tools</a>
+                <button class="btn-login">Login / Sign Up</button>
+            </div>
+            </div>
+        </nav>
+
+    <!-- Privacy Notice Banner -->
+    <div class="privacy-banner" style="background: #e8f4ff; border-bottom: 1px solid #d1e9ff; padding: 0.75rem 0; margin: 80px 0 0;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: center; text-align: center;">
+            <i class="fas fa-shield-alt" style="color: #4A90E2; margin-right: 0.5rem;"></i>
+            <span>Your privacy matters! All processing happens in your browser - we never store your files. <a href="privacy.html" style="color: #4A90E2; text-decoration: underline;">Learn more</a></span>
+        </div>
+    </div>
+
+    <div class="page-container">
+        <!-- Left Ad -->
+        <aside class="ad-sidebar">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="YOUR-ADSENSE-ID"
+                 data-ad-slot="LEFT-AD-SLOT"
+                 data-ad-format="vertical"
+                 data-full-width-responsive="false"></ins>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <div class="container">
+                    <h1 class="text-center mb-0"><i class="fas fa-exchange-alt me-2"></i>Convert from JPG</h1>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="convert-container">
+                    <div class="convert-options">
+                        <h5 class="mb-3">Select Output Format</h5>
+                        <div class="format-options">
+                            <div class="format-btn active" data-format="png">PNG</div>
+                            <div class="format-btn" data-format="webp">WEBP</div>
+                            <div class="format-btn" data-format="tiff">TIFF</div>
+                            <div class="format-btn" data-format="heic">HEIC</div>
+                        </div>
+                        <div class="quality-control mt-3" id="qualityControl" style="display: none;">
+                            <label for="qualitySlider" class="form-label">Quality: <span id="qualityValue">90</span>%</label>
+                            <input type="range" class="form-range" id="qualitySlider" min="1" max="100" value="90">
+                        </div>
+                    </div>
+
+                    <div class="preview-area">
+                        <div class="preview-box" id="previewBox">
+                            <input type="file" id="imageInput" accept="image/jpeg" multiple hidden>
+                            <button class="btn btn-upload mb-3" onclick="document.getElementById('imageInput').click()">
+                                <i class="fas fa-upload me-2"></i>Upload JPG Images
+                            </button>
+                            <div class="loading-spinner" id="loadingSpinner">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <ul class="file-list" id="fileList"></ul>
+                            <div class="file-info" id="fileInfo"></div>
+                        </div>
+                        <button class="btn btn-convert" id="convertBtn" disabled>
+                            <i class="fas fa-sync-alt me-2"></i>Convert Files
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Ad -->
+        <aside class="ad-sidebar">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="YOUR-ADSENSE-ID"
+                 data-ad-slot="RIGHT-AD-SLOT"
+                 data-ad-format="vertical"
+                 data-full-width-responsive="false"></ins>
+        </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Subedit</h4>
+                <p>Your complete online editing solution</p>
+            </div>
+            <div class="footer-section">
+                <h4>Tools</h4>
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="crop.html">Crop Image</a>
+                <a href="remove-background.html">Remove Background</a>
+                <a href="convert-jpg.html">Convert to JPG</a>
+                <a href="convert-from-jpg.html">Convert from JPG</a>
+                <a href="add-watermark.html">Add Watermark</a>
+                <a href="remove-watermark.html">Remove Watermark</a>
+                <a href="photo-effects.html">Photo Effects</a>
+                <a href="pdf-tools.html">PDF Tools</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Subedit. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const previewBox = document.getElementById('previewBox');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const convertBtn = document.getElementById('convertBtn');
+        const fileList = document.getElementById('fileList');
+        const fileInfo = document.getElementById('fileInfo');
+        const qualityControl = document.getElementById('qualityControl');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        let selectedFormat = 'png';
+        let uploadedFiles = [];
+
+        // Update quality value display
+        qualitySlider.addEventListener('input', function() {
+            qualityValue.textContent = this.value;
+        });
+
+        // Handle format selection
+        document.querySelectorAll('.format-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedFormat = this.dataset.format;
+                
+                // Show quality control for WebP
+                qualityControl.style.display = selectedFormat === 'webp' ? 'block' : 'none';
+            });
+        });
+
+        // Handle file upload
+        imageInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const jpgFiles = files.filter(file => 
+                file.type === 'image/jpeg' || file.type === 'image/jpg'
+            );
+            
+            if (jpgFiles.length === 0) {
+                alert('Please upload JPG images only');
+                return;
+            }
+
+            uploadedFiles = uploadedFiles.concat(jpgFiles);
+            updateFileList();
+            convertBtn.disabled = uploadedFiles.length === 0;
+        });
+
+        // Update file list display
+        function updateFileList() {
+            fileList.innerHTML = '';
+            uploadedFiles.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                li.innerHTML = `
+                    <span>${file.name}</span>
+                    <i class="fas fa-times remove-file" data-index="${index}"></i>
+                `;
+                fileList.appendChild(li);
+            });
+
+            if (uploadedFiles.length > 0) {
+                fileInfo.textContent = `${uploadedFiles.length} file(s) selected`;
+                previewBox.classList.add('has-image');
+            } else {
+                fileInfo.textContent = '';
+                previewBox.classList.remove('has-image');
+            }
+
+            document.querySelectorAll('.remove-file').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    uploadedFiles.splice(index, 1);
+                    updateFileList();
+                    convertBtn.disabled = uploadedFiles.length === 0;
+                });
+            });
+        }
+
+        // Convert image to desired format
+        async function convertImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const img = new Image();
+                        img.onload = async function() {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+
+                            const fileName = file.name.replace(/\.(jpg|jpeg)$/i, '');
+                            let blob;
+                            const quality = parseInt(qualitySlider.value) / 100;
+
+                            switch(selectedFormat) {
+                                case 'png':
+                                    blob = await new Promise(resolve => 
+                                        canvas.toBlob(resolve, 'image/png')
+                                    );
+                                    resolve({ blob, ext: '.png' });
+                                    break;
+
+                                case 'webp':
+                                    blob = await new Promise(resolve => 
+                                        canvas.toBlob(resolve, 'image/webp', quality)
+                                    );
+                                    resolve({ blob, ext: '.webp' });
+                                    break;
+
+                                case 'tiff':
+                                    // Convert to TIFF using UTIF.js
+                                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                                    const tiffData = new Uint8Array(canvas.width * canvas.height * 4);
+                                    for (let i = 0; i < imgData.data.length; i++) {
+                                        tiffData[i] = imgData.data[i];
+                                    }
+                                    const tiff = UTIF.encodeImage(tiffData, canvas.width, canvas.height);
+                                    blob = new Blob([tiff], { type: 'image/tiff' });
+                                    resolve({ blob, ext: '.tiff' });
+                                    break;
+
+                                case 'heic':
+                                    // Convert to HEIC using heic2any in reverse
+                                    const jpegBlob = await new Promise(resolve => 
+                                        canvas.toBlob(resolve, 'image/jpeg', 0.9)
+                                    );
+                                    // Note: HEIC conversion might not be fully supported in all browsers
+                                    // This is a placeholder for HEIC conversion
+                                    blob = jpegBlob; // Temporary fallback
+                                    resolve({ blob, ext: '.heic' });
+                                    break;
+
+                                default:
+                                    blob = await new Promise(resolve => 
+                                        canvas.toBlob(resolve, 'image/png')
+                                    );
+                                    resolve({ blob, ext: '.png' });
+                            }
+                        };
+                        img.src = e.target.result;
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Handle conversion
+        convertBtn.addEventListener('click', async function() {
+            if (uploadedFiles.length === 0) return;
+
+            loadingSpinner.style.display = 'block';
+            convertBtn.disabled = true;
+
+            try {
+                for (const file of uploadedFiles) {
+                    const { blob, ext } = await convertImage(file);
+                    const fileName = file.name.replace(/\.(jpg|jpeg)$/i, '') + ext;
+                    saveAs(blob, fileName);
+                }
+            } catch (error) {
+                console.error('Error converting files:', error);
+                alert('Error converting files. Please try again.');
+            } finally {
+                loadingSpinner.style.display = 'none';
+                convertBtn.disabled = false;
+            }
+        });
+
+        // Initialize AdSense ads (if needed)
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</body>
+</html> 

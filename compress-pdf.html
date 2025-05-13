@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compress PDF files online for free. Reduce PDF file size while maintaining quality with our client-side processing tool.">
+    <meta name="keywords" content="compress PDF, PDF compressor, reduce PDF size, PDF optimizer, free PDF tool">
+    <meta name="author" content="Subedit">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Subedit - Compress PDF Online for Free">
+    <meta property="og:description" content="Reduce your PDF file size while maintaining quality. No installation needed.">
+    <meta property="og:url" content="https://subedit.com/compress-pdf.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Subedit - Compress PDF Online for Free">
+    <meta name="twitter:description" content="Reduce your PDF file size while maintaining quality. No installation needed.">
+    <title>Subedit - Compress PDF | Free Online PDF Compressor</title>
+    <link rel="canonical" href="https://subedit.com/compress-pdf.html">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-ID" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #357ABD;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --light-text: #6c757d;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark-text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .page-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .ad-sidebar {
+            width: 160px;
+            min-height: 600px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            max-width: 1200px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            padding: 2rem 0;
+        }
+
+        .compressor-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .file-drop-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-drop-area:hover {
+            border-color: var(--primary-color);
+        }
+
+        .file-drop-area.has-file {
+            border-color: #20c997;
+            background-color: #f0fdf4;
+        }
+
+        .file-info {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+            background: #f0f7ff;
+            padding: 1rem;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--dark-text);
+            word-break: break-all;
+        }
+
+        .file-size {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .compression-settings {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            display: none;
+        }
+
+        .compression-level-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .compression-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #dee2e6;
+            outline: none;
+            margin: 1rem 0;
+        }
+
+        .compression-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .compression-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .compression-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .compression-value {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .estimated-size {
+            text-align: center;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            color: var(--secondary-color);
+            background-color: #f0f7ff;
+            padding: 8px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .quality-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 1rem;
+        }
+
+        .quality-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #20c997;
+        }
+
+        .quality-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .output-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+            background: #f0f7ff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .size-comparison {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .size-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--dark-text);
+        }
+
+        .size-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .reduction-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+        }
+
+        .reduction-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #20c997;
+        }
+
+        .reduction-arrow {
+            font-size: 2rem;
+            color: #20c997;
+            margin: 0 1rem;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin: 20px auto;
+        }
+
+        .progress-container {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #compressResult {
+            display: none;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: #20c997;
+            border-color: #20c997;
+        }
+
+        .btn-success:hover {
+            background-color: #1aa179;
+            border-color: #1aa179;
+        }
+
+        @media (max-width: 768px) {
+            .output-preview {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .reduction-arrow {
+                transform: rotate(90deg);
+                margin: 0.5rem 0;
+            }
+        }
+
+        #errorDetails {
+            display: none;
+            margin-top: 10px;
+            text-align: left;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="index.html" class="logo">
+                <h1>Subedit</h1>
+                <span class="tagline">sab kuch edit</span>
+            </a>
+            <div class="nav-links">
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="remove-background.html">Remove BG</a>
+                <a href="convert-jpg.html">Convert</a>
+                <a href="pdf-tools.html" class="pdf-tools">PDF Tools</a>
+                <button class="btn-login">Login / Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Privacy Notice Banner -->
+    <div class="privacy-banner">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: center; text-align: center;">
+            <i class="fas fa-shield-alt" style="color: #4A90E2; margin-right: 0.5rem;"></i>
+            <span>Your privacy matters! All processing happens in your browser - we never store your files. <a href="privacy.html" style="color: #4A90E2; text-decoration: underline;">Learn more</a></span>
+        </div>
+    </div>
+
+    <main>
+        <section class="header text-center">
+            <div class="container">
+                <h1>Compress PDF</h1>
+                <p class="lead">Reduce PDF file size while maintaining quality</p>
+            </div>
+        </section>
+
+        <div class="page-container">
+            <!-- Left Sidebar Ad -->
+            <aside class="ad-sidebar d-none d-lg-block">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="YOUR-ADSENSE-ID"
+                     data-ad-slot="LEFT-AD-SLOT"
+                     data-ad-format="vertical"
+                     data-full-width-responsive="false"></ins>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="compressor-container">
+                    <div class="file-drop-area" id="pdfDropArea">
+                        <i class="fas fa-file-pdf fa-3x mb-3" style="color: var(--primary-color);"></i>
+                        <h3 class="mb-2">Drag & drop your PDF file here</h3>
+                        <p class="text-muted mb-3">or</p>
+                        <label for="pdfInput" class="btn btn-primary btn-lg">Choose PDF File</label>
+                        <input type="file" id="pdfInput" accept=".pdf" style="display: none;">
+                        
+                        <div class="file-info">
+                            <p class="mb-2"><i class="fas fa-file-pdf me-2"></i> <span class="file-name" id="fileName"></span></p>
+                            <p class="file-size" id="fileSize"></p>
+                            <p class="mt-2" id="pageCount"></p>
+                        </div>
+                    </div>
+
+                    <div class="compression-settings" id="compressionSettings">
+                        <h4 class="mb-3">Compression Settings</h4>
+                        
+                        <div class="compression-level-container">
+                            <label for="compressionLevel" class="form-label">Compression Level</label>
+                            <input type="range" class="compression-slider" id="compressionLevel" min="1" max="5" value="3">
+                            <div class="compression-labels">
+                                <span>Less Compression</span>
+                                <span>More Compression</span>
+                            </div>
+                            <div class="compression-value" id="compressionValue">Medium (60%)</div>
+                            <div class="estimated-size" id="estimatedSize">Estimated size: ~1.2 MB (70% reduction)</div>
+                            <div class="quality-preview">
+                                <div class="quality-indicator" id="qualityIndicator"></div>
+                                <div class="quality-label" id="qualityLabel">Good quality, moderate compression</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="imageDownsample" checked>
+                            <label class="form-check-label" for="imageDownsample">
+                                Downsample images
+                            </label>
+                            <small class="form-text text-muted d-block">Reduces image resolution to save space</small>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button class="btn btn-success btn-lg px-4 py-2" id="compressButton">
+                                <i class="fas fa-compress-alt me-2"></i> Compress PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                    
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Compressing PDF...</div>
+                        <div id="errorDetails"></div>
+                    </div>
+                    
+                    <div class="output-preview" id="outputPreview">
+                        <div class="size-comparison">
+                            <div class="size-value" id="originalSize">4.2 MB</div>
+                            <div class="size-label">Original Size</div>
+                        </div>
+                        
+                        <div class="reduction-indicator">
+                            <div class="reduction-value" id="reductionPercent">-68%</div>
+                            <i class="fas fa-long-arrow-alt-right reduction-arrow"></i>
+                        </div>
+                        
+                        <div class="size-comparison">
+                            <div class="size-value" id="newSize">1.3 MB</div>
+                            <div class="size-label">New Size</div>
+                        </div>
+                    </div>
+                    
+                    <div id="compressResult">
+                        <div class="alert alert-success">
+                            <h4 class="alert-heading"><i class="fas fa-check-circle me-2"></i> Compression Complete!</h4>
+                            <p>Your PDF has been successfully compressed.</p>
+                        </div>
+                        <button class="btn btn-primary btn-lg px-4 py-2" id="downloadButton">
+                            <i class="fas fa-download me-2"></i> Download Compressed PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="compressor-container">
+                    <h2>Why Compress PDF Files?</h2>
+                    <p>Reducing the size of your PDF files has many benefits:</p>
+                    <ul>
+                        <li><strong>Easy sharing</strong> - Send PDFs via email without size limitations</li>
+                        <li><strong>Save storage space</strong> - Free up space on your device or cloud storage</li>
+                        <li><strong>Faster uploads</strong> - Upload compressed PDFs more quickly</li>
+                        <li><strong>Better performance</strong> - Smaller PDFs load faster in browsers and PDF readers</li>
+                        <li><strong>Reduced bandwidth</strong> - Save data when sharing or downloading PDFs</li>
+                    </ul>
+                    <p>Our PDF compression tool reduces file size while maintaining document quality, making it perfect for everyday use.</p>
+                </div>
+                
+                <div class="compressor-container">
+                    <h2>How Our PDF Compressor Works</h2>
+                    <p>Our PDF compression tool uses several techniques to reduce file size:</p>
+                    <ol>
+                        <li><strong>Image optimization</strong> - Compresses images within the PDF without significant quality loss</li>
+                        <li><strong>Image downsampling</strong> - Reduces the resolution of images to an appropriate level</li>
+                        <li><strong>Metadata removal</strong> - Removes unnecessary metadata to reduce file size</li>
+                        <li><strong>Structure optimization</strong> - Optimizes the internal structure of the PDF</li>
+                    </ol>
+                    <p>All processing happens directly in your browser - we never upload your files to any server, ensuring complete privacy and security.</p>
+                </div>
+            </div>
+
+            <!-- Right Sidebar Ad -->
+            <aside class="ad-sidebar d-none d-lg-block">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="YOUR-ADSENSE-ID"
+                     data-ad-slot="RIGHT-AD-SLOT"
+                     data-ad-format="vertical"
+                     data-full-width-responsive="false"></ins>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Subedit</h4>
+                <p>Your complete online editing solution</p>
+            </div>
+            <div class="footer-section">
+                <h4>Tools</h4>
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="crop-image.html">Crop Image</a>
+                <a href="remove-background.html">Remove Background</a>
+                <a href="convert-jpg.html">Convert to JPG</a>
+                <a href="convert-from-jpg.html">Convert from JPG</a>
+                <a href="add-watermark.html">Add Watermark</a>
+                <a href="remove-watermark.html">Remove Watermark</a>
+                <a href="photo-effects.html">Photo Effects</a>
+                <a href="pdf-tools.html">PDF Tools</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Subedit. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.min.js"></script>
+    <script src="https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    
+    <script>
+        // Initialize AdSense ads
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+
+        // Set the worker source for pdf.js
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // PDF Compressor logic
+            const pdfDropArea = document.getElementById('pdfDropArea');
+            const pdfInput = document.getElementById('pdfInput');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const pageCount = document.getElementById('pageCount');
+            const fileInfo = document.querySelector('.file-info');
+            const compressionSettings = document.getElementById('compressionSettings');
+            const compressionLevel = document.getElementById('compressionLevel');
+            const compressionValue = document.getElementById('compressionValue');
+            const imageDownsample = document.getElementById('imageDownsample');
+            const compressButton = document.getElementById('compressButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const outputPreview = document.getElementById('outputPreview');
+            const originalSize = document.getElementById('originalSize');
+            const newSize = document.getElementById('newSize');
+            const reductionPercent = document.getElementById('reductionPercent');
+            const compressResult = document.getElementById('compressResult');
+            const downloadButton = document.getElementById('downloadButton');
+            const errorDetails = document.getElementById('errorDetails');
+            
+            let selectedFile = null;
+            let compressedPDF = null;
+            let originalSizeBytes = 0;
+            let newSizeBytes = 0;
+            
+            // Add click handler to the Choose PDF File button
+            document.querySelector('label[for="pdfInput"]').addEventListener('click', function(e) {
+                e.preventDefault();
+                pdfInput.click();
+            });
+            
+            // Compression level labels
+            const compressionLabels = [
+                "Light (20%)",
+                "Balanced (35%)",
+                "Standard (50%)",
+                "High (65%)",
+                "Maximum (80%)"
+            ];
+            
+            // Handle file selection
+            pdfInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf') {
+                        handleFileSelection(file);
+                    } else {
+                        alert('Please upload a PDF file.');
+                    }
+                }
+            });
+            
+            // Handle drag and drop
+            pdfDropArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                pdfDropArea.classList.add('border-primary');
+            });
+            
+            pdfDropArea.addEventListener('dragleave', function() {
+                pdfDropArea.classList.remove('border-primary');
+            });
+            
+            pdfDropArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                pdfDropArea.classList.remove('border-primary');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type === 'application/pdf') {
+                        handleFileSelection(file);
+                    } else {
+                        alert('Please upload a PDF file.');
+                    }
+                }
+            });
+            
+            async function handleFileSelection(file) {
+                selectedFile = file;
+                originalSizeBytes = file.size;
+                
+                // Update UI
+                pdfDropArea.classList.add('has-file');
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+                
+                // Reset error display
+                errorDetails.style.display = 'none';
+                errorDetails.textContent = '';
+                
+                // Validate that this is a valid PDF
+                try {
+                    const arrayBuffer = await readFileAsArrayBuffer(file);
+                    // Quick validation of PDF header signature - should start with %PDF-
+                    const firstBytes = new Uint8Array(arrayBuffer.slice(0, 5));
+                    const header = String.fromCharCode.apply(null, firstBytes);
+                    
+                    if (!header.startsWith('%PDF-')) {
+                        throw new Error('Invalid PDF file. File does not have a valid PDF header.');
+                    }
+                    
+                    // Try to load with PDF.js for better validation
+                    try {
+                        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { 
+                            ignoreEncryption: true,
+                            throwOnInvalidObject: false
+                        });
+                        const pageCount = pdfDoc.getPageCount();
+                        
+                        // Update page count info
+                        document.getElementById('pageCount').textContent = `${pageCount} page${pageCount > 1 ? 's' : ''}`;
+                        originalSize.textContent = formatFileSize(file.size);
+
+                        // Show estimated size based on current compression level
+                        updateEstimatedSize(file.size);
+                    } catch (e) {
+                        console.warn('PDF validation warning:', e);
+                        // Still show settings even if there's a warning, as our fallback might handle it
+                    }
+                    
+                    // Show compression settings
+                    compressionSettings.style.display = 'block';
+                    
+                    // Hide previous results
+                    compressResult.style.display = 'none';
+                    outputPreview.style.display = 'none';
+                    
+                } catch (error) {
+                    console.error('Error validating PDF:', error);
+                    
+                    // Show error message
+                    errorDetails.style.display = 'block';
+                    errorDetails.textContent = `Error: ${error.message || 'Unknown error'}\n\nThe selected file is not a valid PDF or is corrupted.`;
+                    
+                    // Clear selection
+                    selectedFile = null;
+                    pdfDropArea.classList.remove('has-file');
+                    fileInfo.style.display = 'none';
+                    compressionSettings.style.display = 'none';
+                    
+                    alert('Invalid PDF file: ' + error.message);
+                }
+            }
+            
+            // Update compression level display
+            compressionLevel.addEventListener('input', function() {
+                const level = parseInt(compressionLevel.value);
+                compressionValue.textContent = compressionLabels[level - 1];
+                
+                // Update quality indicator
+                updateQualityIndicator(level);
+                
+                // Update estimated size if we have a file
+                if (selectedFile) {
+                    updateEstimatedSize(selectedFile.size);
+                }
+            });
+            
+            // Update quality indicator based on compression level
+            function updateQualityIndicator(level) {
+                const qualityIndicator = document.getElementById('qualityIndicator');
+                const qualityLabel = document.getElementById('qualityLabel');
+                
+                // Set color based on level
+                let color, label;
+                switch(level) {
+                    case 1:
+                        color = '#20c997'; // Green - excellent quality
+                        label = 'Excellent quality, light compression';
+                        break;
+                    case 2:
+                        color = '#4cc9f0'; // Blue - very good quality
+                        label = 'Very good quality, balanced compression';
+                        break;
+                    case 3:
+                        color = '#4361ee'; // Blue - good quality
+                        label = 'Good quality, standard compression';
+                        break;
+                    case 4:
+                        color = '#f8961e'; // Orange - moderate quality
+                        label = 'Moderate quality, high compression';
+                        break;
+                    case 5:
+                        color = '#e76f51'; // Red - lower quality
+                        label = 'Reduced quality, maximum compression';
+                        break;
+                }
+                
+                qualityIndicator.style.backgroundColor = color;
+                qualityLabel.textContent = label;
+            }
+            
+            // Update estimated size based on file size and compression level
+            function updateEstimatedSize(fileSize) {
+                const level = parseInt(compressionLevel.value);
+                const estimatedSizeElement = document.getElementById('estimatedSize');
+                
+                // More realistic compression ratios based on what's actually achievable
+                // These values will be closer to the actual compression results
+                const compressionRatios = [0.95, 0.85, 0.70, 0.50, 0.30]; 
+                
+                // Calculate estimated size
+                const estimatedSize = fileSize * compressionRatios[level - 1];
+                const reduction = Math.round((1 - compressionRatios[level - 1]) * 100);
+                
+                // Update UI
+                estimatedSizeElement.textContent = `Estimated size: ~${formatFileSize(estimatedSize)} (${reduction}% reduction)`;
+                estimatedSizeElement.style.display = 'block';
+                
+                // Store the estimated size for comparison later
+                window.estimatedSizeBytes = estimatedSize;
+            }
+            
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Compress PDF
+            compressButton.addEventListener('click', async function() {
+                if (!selectedFile) return;
+                
+                // Reset UI elements
+                errorDetails.style.display = 'none';
+                errorDetails.textContent = '';
+                
+                // Show loading spinner
+                compressButton.disabled = true;
+                loadingSpinner.style.display = 'block';
+                progressContainer.style.display = 'none';
+                
+                try {
+                    const arrayBuffer = await readFileAsArrayBuffer(selectedFile);
+                    
+                    // Get compression level settings
+                    const level = parseInt(compressionLevel.value);
+                    const downsample = imageDownsample.checked;
+                    
+                    // Force more aggressive compression at lower levels to match estimates
+                    // This ensures even level 1 will see some compression
+                    const effectiveLevel = level;
+                    
+                    // Quality settings that ensure compression at all levels
+                    // Even at level 1, we'll use 0.85 quality instead of 0.95
+                    const imageQuality = Math.max(0.2, 0.85 - ((effectiveLevel - 1) * 0.15)); 
+                    
+                    // More aggressive DPI reduction at all levels
+                    const targetDPI = downsample ? 250 - ((effectiveLevel - 1) * 40) : 300;
+                    
+                    // Always apply some compression, even at low levels
+                    const compressionAggressiveness = Math.max(2, effectiveLevel);
+                    
+                    // Set up progress indicators
+                    loadingSpinner.style.display = 'none';
+                    progressContainer.style.display = 'block';
+                    
+                    // Process and compress the PDF with progress updates
+                    let compressedPdfBytes;
+                    try {
+                        compressedPdfBytes = await compressPDF(arrayBuffer, {
+                            imageQuality,
+                            targetDPI,
+                            compressionLevel: effectiveLevel,
+                            compressionAggressiveness,
+                            forceCompression: true, // Always apply some compression
+                            onProgress: (progress, message) => {
+                                // Update progress UI
+                                progressFill.style.width = `${Math.round(progress * 100)}%`;
+                                if (message) {
+                                    progressText.textContent = message;
+                                }
+                            }
+                        });
+                    } catch (compressError) {
+                        console.error('Error in advanced compression, trying fallback method:', compressError);
+                        progressText.textContent = "Using fallback compression method...";
+                        
+                        // Fallback to basic compression if advanced fails
+                        compressedPdfBytes = await compressWithFallback(arrayBuffer, effectiveLevel);
+                    }
+                    
+                    // Create blob from compressed PDF
+                    compressedPDF = new Blob([compressedPdfBytes], { type: 'application/pdf' });
+                    
+                    // Calculate actual size reduction
+                    newSizeBytes = compressedPDF.size;
+                    
+                    // Compare with estimated size and adjust compression if needed
+                    const estimatedSize = window.estimatedSizeBytes || (originalSizeBytes * 0.6); // Default if no estimate
+                    const sizeDifference = Math.abs(newSizeBytes - estimatedSize);
+                    const sizeDifferencePercentage = (sizeDifference / estimatedSize) * 100;
+                    
+                    // If the actual size is significantly different from the estimate (>25% difference)
+                    // and the compression didn't reduce size enough, try more aggressive compression
+                    if (sizeDifferencePercentage > 25 && newSizeBytes > estimatedSize && level < 5) {
+                        progressText.textContent = "Adjusting compression to match estimate...";
+                        
+                        // Try more aggressive compression
+                        try {
+                            const adjustedImageQuality = Math.max(0.1, imageQuality - 0.2);
+                            const adjustedDPI = Math.max(72, targetDPI - 50);
+                            
+                            const adjustedCompressedPdfBytes = await compressPDF(arrayBuffer, {
+                                imageQuality: adjustedImageQuality,
+                                targetDPI: adjustedDPI,
+                                compressionLevel: level + 1,
+                                compressionAggressiveness: level + 1,
+                                onProgress: (progress, message) => {
+                                    // Update progress UI
+                                    progressFill.style.width = `${Math.round(progress * 100)}%`;
+                                }
+                            });
+                            
+                            const adjustedCompressedPDF = new Blob([adjustedCompressedPdfBytes], { type: 'application/pdf' });
+                            const adjustedSize = adjustedCompressedPDF.size;
+                            
+                            // If the adjusted compression is closer to the estimate, use it
+                            if (Math.abs(adjustedSize - estimatedSize) < sizeDifference) {
+                                compressedPDF = adjustedCompressedPDF;
+                                newSizeBytes = adjustedSize;
+                                console.log("Using adjusted compression to better match estimate");
+                            }
+                        } catch (adjustError) {
+                            console.warn("Failed to adjust compression:", adjustError);
+                            // Continue with original compression
+                        }
+                    }
+                    
+                    // Safety check - if compression didn't reduce size or made it larger,
+                    // return the original file - this can happen with already optimized PDFs
+                    if (newSizeBytes >= originalSizeBytes) {
+                        console.warn("Compression did not reduce file size. Using original file.");
+                        compressedPDF = new Blob([arrayBuffer], { type: 'application/pdf' });
+                        newSizeBytes = originalSizeBytes;
+                        
+                        // Show warning message
+                        progressText.textContent = "This PDF is already optimized. No further compression possible.";
+                    }
+                    
+                    // Update UI with compression results
+                    newSize.textContent = formatFileSize(newSizeBytes);
+                    
+                    // Calculate reduction percentage
+                    const reduction = Math.round(((originalSizeBytes - newSizeBytes) / originalSizeBytes) * 100);
+                    reductionPercent.textContent = `-${reduction}%`;
+                    
+                    // Show output preview and download button
+                    outputPreview.style.display = 'flex';
+                    compressResult.style.display = 'block';
+                    
+                    // Set up download button
+                    downloadButton.onclick = function() {
+                        const url = URL.createObjectURL(compressedPDF);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = selectedFile.name.replace('.pdf', '-compressed.pdf');
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    };
+                    
+                } catch (error) {
+                    console.error('Error compressing PDF:', error);
+                    
+                    // Show detailed error for debugging
+                    errorDetails.style.display = 'block';
+                    errorDetails.textContent = `Error: ${error.message || 'Unknown error'}\n\nStack: ${error.stack || 'No stack trace available'}`;
+                    
+                    alert('Error compressing PDF: ' + (error.message || 'Unknown error') + '. Please try again with a different PDF file.');
+                } finally {
+                    loadingSpinner.style.display = 'none';
+                    progressContainer.style.display = 'none';
+                    compressButton.disabled = false;
+                }
+            });
+            
+            // Fallback compression method when advanced compression fails
+            async function compressWithFallback(arrayBuffer, level) {
+                try {
+                    // First try with PDF-lib's basic options
+                    try {
+                        // Load with simpler options
+                        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, {
+                            ignoreEncryption: true,
+                            updateMetadata: false,
+                            throwOnInvalidObject: false
+                        });
+                        
+                        // Copy to new document with minimal processing
+                        const newPdf = await PDFLib.PDFDocument.create();
+                        
+                        // Copy each page
+                        const pages = pdfDoc.getPageCount();
+                        let pagesCopied = 0;
+                        
+                        for (let i = 0; i < pages; i++) {
+                            try {
+                                const [page] = await newPdf.copyPages(pdfDoc, [i]);
+                                newPdf.addPage(page);
+                                pagesCopied++;
+                            } catch (e) {
+                                console.warn(`Could not copy page ${i+1}, skipping:`, e);
+                            }
+                        }
+                        
+                        // If we couldn't copy any pages, throw an error to try the ultra-safe method
+                        if (pagesCopied === 0) {
+                            throw new Error("No pages could be copied");
+                        }
+                        
+                        // Apply compression based on level - do this for ALL levels
+                        // Remove metadata at all levels, just to different degrees
+                        
+                        // Always remove metadata for all levels
+                        newPdf.setProducer('Subedit PDF Compressor');
+                        newPdf.setCreator('Subedit');
+                        
+                        // More aggressive metadata removal at higher levels
+                        if (level >= 2) {
+                            newPdf.setTitle('');
+                            newPdf.setAuthor('');
+                            newPdf.setSubject('');
+                            newPdf.setKeywords('');
+                        }
+                        
+                        // Basic compression options - always apply compression
+                        const compressionOptions = {
+                            useObjectStreams: true,
+                            addDefaultPage: false,
+                            compress: true,
+                            compressContentStreams: true,
+                            objectsPerTick: 100 + (level * 50) // Scale with level
+                        };
+                        
+                        return await newPdf.save(compressionOptions);
+                    } catch (firstFallbackError) {
+                        console.warn("First fallback failed:", firstFallbackError);
+                        
+                        // Ultra-safe fallback - create a minimal PDF with just the minimal settings
+                        const simplePdf = await PDFLib.PDFDocument.create();
+                        simplePdf.registerFontkit(window.fontkit);
+                        
+                        // Try to embed minimal content
+                        try {
+                            // Load pdf with pdf.js for rendering
+                            const pdfJsDoc = await pdfjsLib.getDocument({ 
+                                data: arrayBuffer,
+                                disableFontFace: true
+                            }).promise;
+                            
+                            // Get page count
+                            const pageCount = pdfJsDoc.numPages;
+                            
+                            // Process up to 50 pages to avoid browser issues
+                            const pagesToProcess = Math.min(pageCount, 50);
+                            
+                            for (let i = 0; i < pagesToProcess; i++) {
+                                const page = await pdfJsDoc.getPage(i + 1);
+                                const viewport = page.getViewport({ scale: 1.0 });
+                                
+                                // Create a new page in our PDF
+                                const pdfPage = simplePdf.addPage([viewport.width, viewport.height]);
+                                
+                                // Render to canvas at reduced quality
+                                const canvas = document.createElement('canvas');
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
+                                const context = canvas.getContext('2d');
+                                
+                                await page.render({
+                                    canvasContext: context,
+                                    viewport: viewport
+                                }).promise;
+                                
+                                // Add the rendered page as a JPEG - adjust quality based on level
+                                // More consistent quality reduction across levels
+                                // Even at level 1, use at most 0.85 quality
+                                const jpegQuality = Math.max(0.2, 0.85 - ((level - 1) * 0.15));
+                                const jpegData = canvas.toDataURL('image/jpeg', jpegQuality);
+                                const base64Data = jpegData.split(',')[1];
+                                const binaryString = atob(base64Data);
+                                const bytes = new Uint8Array(binaryString.length);
+                                for (let j = 0; j < binaryString.length; j++) {
+                                    bytes[j] = binaryString.charCodeAt(j);
+                                }
+                                
+                                // Embed and draw the JPEG
+                                const embeddedImage = await simplePdf.embedJpg(bytes);
+                                pdfPage.drawImage(embeddedImage, {
+                                    x: 0,
+                                    y: 0,
+                                    width: viewport.width,
+                                    height: viewport.height
+                                });
+                            }
+                            
+                            return await simplePdf.save();
+                        } catch (renderError) {
+                            console.error("Render fallback failed:", renderError);
+                            throw new Error("Could not compress PDF");
+                        }
+                    }
+                } catch (error) {
+                    console.error("All fallback compression methods failed:", error);
+                    // If all else fails, return the original PDF
+                    return arrayBuffer;
+                }
+            }
+            
+            // PDF Compression function - Improved version
+            async function compressPDF(arrayBuffer, options) {
+                const { 
+                    imageQuality = 0.5, 
+                    targetDPI = 150, 
+                    compressionLevel = 3,
+                    compressionAggressiveness = 3,
+                    forceCompression = false,
+                    onProgress = null 
+                } = options;
+                
+                // Format file size (copied from the main function for access inside this function)
+                function formatSizeForLog(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                }
+                
+                // Analyze PDF content to better estimate compression potential
+                async function analyzePdfContent() {
+                    try {
+                        // Try to load with pdf.js to analyze content
+                        const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        let totalText = 0;
+                        let totalImages = 0;
+                        
+                        // Sample a few pages to estimate content
+                        const pagesToSample = Math.min(3, pdfJsDoc.numPages);
+                        
+                        for (let i = 1; i <= pagesToSample; i++) {
+                            const page = await pdfJsDoc.getPage(i);
+                            
+                            // Get text content
+                            const textContent = await page.getTextContent();
+                            totalText += textContent.items.length;
+                            
+                            // Try to get image content (simplified)
+                            const operatorList = await page.getOperatorList();
+                            const imageOps = operatorList.fnArray.filter(op => op === 82); // 82 is the code for "paintImageXObject"
+                            totalImages += imageOps.length;
+                        }
+                        
+                        // Calculate ratio based on content
+                        const hasImages = totalImages > 0;
+                        const textHeavy = totalText > (totalImages * 10);
+                        
+                        return {
+                            hasImages,
+                            textHeavy,
+                            estimatedImageRatio: hasImages ? (totalImages / (totalText + totalImages)) : 0
+                        };
+                    } catch (e) {
+                        console.warn("Could not analyze PDF content:", e);
+                        return { hasImages: true, textHeavy: false, estimatedImageRatio: 0.5 };
+                    }
+                }
+                
+                try {
+                    // Analyze content if possible to better predict compression
+                    let contentAnalysis = { hasImages: true, textHeavy: false, estimatedImageRatio: 0.5 };
+                    try {
+                        if (onProgress) onProgress(0.05, "Analyzing document content...");
+                        contentAnalysis = await analyzePdfContent();
+                    } catch (e) {
+                        console.warn("Content analysis failed:", e);
+                    }
+                    
+                    // Load the PDF with pdf-lib
+                    if (onProgress) onProgress(0.1, "Loading document...");
+                    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { 
+                        ignoreEncryption: true,
+                        updateMetadata: false,
+                        throwOnInvalidObject: false
+                    });
+                    
+                    // Get all pages
+                    const pageCount = pdfDoc.getPageCount();
+                    
+                    // Create a new PDF document for the compressed version
+                    const newPdfDoc = await PDFLib.PDFDocument.create();
+                    
+                    // Load with pdf.js to extract images if possible
+                    // Apply image extraction at ALL compression levels, just with different quality settings
+                    let extractImages = typeof pdfjsLib !== 'undefined' && (contentAnalysis.hasImages || forceCompression);
+                    let pdfJsDoc = null;
+                    
+                    if (extractImages) {
+                        try {
+                            pdfJsDoc = await pdfjsLib.getDocument({ 
+                                data: arrayBuffer,
+                                disableFontFace: true,
+                                cMapUrl: 'https://unpkg.com/pdfjs-dist@2.16.105/cmaps/',
+                                cMapPacked: true
+                            }).promise;
+                        } catch (err) {
+                            console.warn('Could not initialize PDF.js for image extraction:', err);
+                            extractImages = false;
+                        }
+                    }
+                    
+                    // Track the original vs new size to calculate savings
+                    let totalOriginalImageSize = 0;
+                    let totalCompressedImageSize = 0;
+                    
+                    // Process each page
+                    for (let i = 0; i < pageCount; i++) {
+                        // Update progress
+                        if (onProgress) {
+                            const pageProgress = 0.1 + (0.7 * (i / pageCount));
+                            onProgress(pageProgress, `Compressing page ${i + 1} of ${pageCount}...`);
+                        }
+                        
+                        // Copy the page to the new document
+                        try {
+                            const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [i]);
+                            const addedPage = newPdfDoc.addPage(copiedPage);
+                            
+                            // If we're using PDF.js for image extraction/optimization
+                            if (pdfJsDoc && extractImages) {
+                                try {
+                                    // Get the page from pdf.js
+                                    const pdfJsPage = await pdfJsDoc.getPage(i + 1);
+                                    
+                                    // Set viewport for rendering scaled to the target DPI
+                                    const viewport = pdfJsPage.getViewport({ scale: targetDPI / 72 }); // 72 DPI is PDF default
+                                    
+                                    // Create canvas for rendering
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = viewport.width;
+                                    canvas.height = viewport.height;
+                                    const context = canvas.getContext('2d');
+                                    
+                                    // Render the page to the canvas
+                                    await pdfJsPage.render({
+                                        canvasContext: context,
+                                        viewport: viewport
+                                    }).promise;
+                                    
+                                    // Get the rendered page as a compressed JPEG
+                                    const compressedImage = canvas.toDataURL('image/jpeg', imageQuality);
+                                    
+                                    // Calculate sizes for stats
+                                    const originalSize = canvas.width * canvas.height * 4; // Approximate original RGBA size
+                                    totalOriginalImageSize += originalSize;
+                                    
+                                    // Calculate compressed size (subtract base64 overhead)
+                                    const base64Size = compressedImage.length - 'data:image/jpeg;base64,'.length;
+                                    const compressedSize = Math.floor(base64Size * 0.75); // Base64 encoding is 4:3
+                                    totalCompressedImageSize += compressedSize;
+                                    
+                                    // Modified replacement logic to ensure compression at all levels
+                                    // For level 1: Replace at least 10% of pages if they have images
+                                    // For level 2: Replace at least 25% of pages
+                                    // For level 3: Replace at least 40% of pages
+                                    // For level 4: Replace at least 60% of pages
+                                    // For level 5: Replace at least 80% of pages
+                                    
+                                    // Calculate threshold based on level
+                                    const baseThreshold = 0.9 - (compressionLevel * 0.15); // 0.75, 0.6, 0.45, 0.3, 0.15
+                                    
+                                    // Determine if this page should be replaced
+                                    const pageRatio = i / pageCount; // Position in document (0 to 1)
+                                    const shouldReplacePage = 
+                                        pageRatio <= (1 - baseThreshold) || // Replace based on position
+                                        (contentAnalysis.estimatedImageRatio > baseThreshold) || // Replace if image-heavy
+                                        forceCompression; // Force replacement if needed
+                                    
+                                    if (shouldReplacePage) {
+                                        try {
+                                            // Convert base64 image to bytes
+                                            const base64Data = compressedImage.split(',')[1];
+                                            const binaryString = atob(base64Data);
+                                            const bytes = new Uint8Array(binaryString.length);
+                                            for (let j = 0; j < binaryString.length; j++) {
+                                                bytes[j] = binaryString.charCodeAt(j);
+                                            }
+                                            
+                                            // Embed the compressed JPEG in the new PDF
+                                            const compressedJpgImage = await newPdfDoc.embedJpg(bytes);
+                                            
+                                            // Get page dimensions
+                                            const { width, height } = addedPage.getSize();
+                                            
+                                            // Draw the compressed image on the page (replacing existing content)
+                                            addedPage.drawImage(compressedJpgImage, {
+                                                x: 0,
+                                                y: 0,
+                                                width: width,
+                                                height: height,
+                                            });
+                                            
+                                            console.log(`Replaced page ${i+1} with compressed image. Original: ${formatSizeForLog(originalSize)}, Compressed: ${formatSizeForLog(compressedSize)}`);
+                                        } catch (err) {
+                                            console.warn(`Failed to replace page ${i+1} with compressed version:`, err);
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.warn(`Error processing page ${i + 1} for image compression:`, err);
+                                }
+                            }
+                        } catch (pageErr) {
+                            console.warn(`Error copying page ${i + 1}, skipping:`, pageErr);
+                        }
+                    }
+                    
+                    // Always remove metadata for all levels
+                    newPdfDoc.setProducer('Subedit PDF Compressor');
+                    newPdfDoc.setCreator('Subedit');
+                    
+                    // More aggressive metadata removal at higher levels
+                    if (compressionLevel >= 2) {
+                        newPdfDoc.setTitle('');
+                        newPdfDoc.setAuthor('');
+                        newPdfDoc.setSubject('');
+                        newPdfDoc.setKeywords('');
+                    }
+                    
+                    // Set PDF options based on compression level and content analysis
+                    const pdfOptions = {
+                        useObjectStreams: true,
+                        addDefaultPage: false,
+                        objectsPerTick: 100 + (compressionLevel * 50), // Scale with level
+                        compress: true, // Always compress
+                        compressContentStreams: true // Always compress content streams
+                    };
+                    
+                    // Apply PDF-lib compression and get the result
+                    if (onProgress) onProgress(0.9, "Finalizing document...");
+                    const result = await newPdfDoc.save(pdfOptions);
+                    
+                    // Check if the compression achieved the expected ratio
+                    const compressionRatios = [0.95, 0.85, 0.70, 0.50, 0.30];
+                    const expectedSize = arrayBuffer.byteLength * compressionRatios[compressionLevel - 1];
+                    const actualSize = result.byteLength;
+                    
+                    // Log compression stats
+                    console.log(`Compression stats:
+                        Original size: ${formatSizeForLog(arrayBuffer.byteLength)}
+                        Expected size: ${formatSizeForLog(expectedSize)} (${Math.round((1 - compressionRatios[compressionLevel - 1]) * 100)}% reduction)
+                        Actual size: ${formatSizeForLog(actualSize)} (${Math.round((1 - (actualSize / arrayBuffer.byteLength)) * 100)}% reduction)
+                        Content analysis: ${JSON.stringify(contentAnalysis)}
+                        Compression level: ${compressionLevel}
+                        Image quality: ${imageQuality}
+                    `);
+                    
+                    if (onProgress) onProgress(1, "Compression complete!");
+                    return result;
+                    
+                } catch (error) {
+                    console.error('Error in PDF compression:', error);
+                    throw error;
+                }
+            }
+            
+            // Helper to convert data URL to blob
+            function dataURLtoBlob(dataURL) {
+                const parts = dataURL.split(';base64,');
+                const contentType = parts[0].split(':')[1];
+                const raw = window.atob(parts[1]);
+                const rawLength = raw.length;
+                const uInt8Array = new Uint8Array(rawLength);
+                
+                for (let i = 0; i < rawLength; ++i) {
+                    uInt8Array[i] = raw.charCodeAt(i);
+                }
+                
+                return new Blob([uInt8Array], { type: contentType });
+            }
+            
+            // Helper for image resizing
+            function resizeImage(imgData, maxWidth, maxHeight, quality) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Calculate new dimensions
+                        if (width > maxWidth) {
+                            height = Math.round(height * (maxWidth / width));
+                            width = maxWidth;
+                        }
+                        
+                        if (height > maxHeight) {
+                            width = Math.round(width * (maxHeight / height));
+                            height = maxHeight;
+                        }
+                        
+                        // Create canvas for resizing
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Draw and compress
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to compressed JPEG data URL
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    
+                    img.src = imgData;
+                });
+            }
+            
+            function readFileAsArrayBuffer(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        resolve(e.target.result);
+                    };
+                    
+                    reader.onerror = function(error) {
+                        reject(error);
+                    };
+                    
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compare PDF Files | Subedit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-bg: #f8f9fa;
+            --border-color: #e9ecef;
+            --removed-color: #ff4d6d;
+            --added-color: #06d6a0;
+            --highlight-color: #ffd166;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin-top: 80px;
+        }
+        
+        .compare-container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            padding: 2.5rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .app-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pdf-preview {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--light-bg);
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .pdf-preview canvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pdf-preview .placeholder {
+            color: #adb5bd;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .pdf-upload {
+            margin-bottom: 1.5rem;
+        }
+        
+        .pdf-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .pdf-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .pdf-card-header {
+            background: var(--light-bg);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .pdf-card-body {
+            padding: 1.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+            border-color: var(--primary-color);
+        }
+        
+        .diff-removed {
+            background-color: var(--removed-color);
+            color: white;
+            padding: 0.15rem 0.3rem;
+            border-radius: 4px;
+            margin: 0 1px;
+        }
+        
+        .diff-added {
+            background-color: var(--added-color);
+            color: white;
+            padding: 0.15rem 0.3rem;
+            border-radius: 4px;
+            margin: 0 1px;
+        }
+        
+        .change-report {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .page-diff {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .page-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .loading-indicator {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .spinner-border {
+            margin-right: 1rem;
+        }
+        
+        .comparison-summary {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .summary-stat {
+            text-align: center;
+            padding: 0.5rem;
+        }
+        
+        .summary-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .no-differences {
+            text-align: center;
+            padding: 2rem;
+            color: #198754;
+            font-weight: 500;
+        }
+
+        .page-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .ad-sidebar {
+            width: 160px;
+            min-height: 600px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            max-width: 1200px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .privacy-banner {
+            background: #e8f4ff;
+            border-bottom: 1px solid #d1e9ff;
+            padding: 0.75rem 0;
+            margin-top: 80px;
+        }
+
+        .changes-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .changes-list li {
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .edit-number {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+            font-size: 1.1rem;
+        }
+
+        .pdf-version {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .pdf-version.original {
+            color: var(--removed-color);
+        }
+
+        .pdf-version.modified {
+            color: var(--added-color);
+        }
+
+        .pdf-text {
+            padding: 8px 12px;
+            background-color: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid;
+        }
+
+        .pdf-text.original {
+            border-left-color: var(--removed-color);
+        }
+
+        .pdf-text.modified {
+            border-left-color: var(--added-color);
+        }
+
+        /* Enhanced file upload styling */
+        .upload-container {
+            position: relative;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 2rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        .upload-container:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .upload-container input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: -1; /* Hide the input but keep it functional */
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .file-selected {
+            display: none;
+            background-color: rgba(67, 97, 238, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .file-selected i {
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="index.html" class="logo">
+                <h1>Subedit</h1>
+                <span class="tagline">sab kuch edit</span>
+            </a>
+            <div class="nav-links">
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="remove-background.html">Remove BG</a>
+                <a href="convert-jpg.html">Convert</a>
+                <a href="pdf-tools.html" class="pdf-tools">PDF Tools</a>
+                <button class="btn-login">Login / Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Privacy Notice Banner -->
+    <div class="privacy-banner">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: center; text-align: center;">
+            <i class="fas fa-shield-alt" style="color: #4A90E2; margin-right: 0.5rem;"></i>
+            <span>Your privacy matters! All processing happens in your browser - we never store your files. <a href="privacy.html" style="color: #4A90E2; text-decoration: underline;">Learn more</a></span>
+        </div>
+    </div>
+
+    <main>
+        <section class="header text-center">
+            <div class="container">
+                <h1>Compare PDF Files</h1>
+                <p class="lead">Identify differences between two PDF documents - word by word</p>
+            </div>
+        </section>
+
+        <div class="page-container">
+            <!-- Left Sidebar Ad -->
+            <aside class="ad-sidebar d-none d-lg-block">
+                <!-- Ad placeholder -->
+            </aside>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="compare-container">
+                    <h2 class="app-title text-center">
+                        <i class="fas fa-file-pdf me-2"></i>PDF Comparison Tool
+                    </h2>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="pdf-card">
+                                <div class="pdf-card-header">
+                                    <h5 class="mb-0"><i class="fas fa-file-pdf me-2"></i>First PDF</h5>
+                                </div>
+                                <div class="pdf-card-body">
+                                    <div class="upload-container" id="uploadContainer1">
+                                        <div class="upload-icon">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                        </div>
+                                        <h5 class="upload-text">Upload Original PDF</h5>
+                                        <p class="upload-hint">Click or drag and drop your file here</p>
+                                        <div class="file-selected" id="fileSelected1">
+                                            <i class="fas fa-file-pdf"></i> <span id="fileName1"></span>
+                                        </div>
+                                        <input type="file" id="pdf1" accept="application/pdf" class="form-control">
+                                    </div>
+                                    <div id="preview1" class="pdf-preview">
+                                        <div class="placeholder">
+                                            <i class="fas fa-file-upload fa-3x mb-3"></i>
+                                            <p>Upload a PDF to preview</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="pdf-card">
+                                <div class="pdf-card-header">
+                                    <h5 class="mb-0"><i class="fas fa-file-pdf me-2"></i>Second PDF</h5>
+                                </div>
+                                <div class="pdf-card-body">
+                                    <div class="upload-container" id="uploadContainer2">
+                                        <div class="upload-icon">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                        </div>
+                                        <h5 class="upload-text">Upload Modified PDF</h5>
+                                        <p class="upload-hint">Click or drag and drop your file here</p>
+                                        <div class="file-selected" id="fileSelected2">
+                                            <i class="fas fa-file-pdf"></i> <span id="fileName2"></span>
+                                        </div>
+                                        <input type="file" id="pdf2" accept="application/pdf" class="form-control">
+                                    </div>
+                                    <div id="preview2" class="pdf-preview">
+                                        <div class="placeholder">
+                                            <i class="fas fa-file-upload fa-3x mb-3"></i>
+                                            <p>Upload a PDF to preview</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary btn-lg" id="compareBtn">
+                            <i class="fas fa-code-compare me-2"></i>Compare Documents
+                        </button>
+                    </div>
+                    
+                    <div id="loadingIndicator" class="loading-indicator">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <span>Analyzing documents...</span>
+                    </div>
+                    
+                    <div id="changeReport" class="change-report mt-4" style="display:none;">
+                        <h4 class="mb-4">Comparison Results</h4>
+                        <div id="comparisonSummary" class="comparison-summary"></div>
+                        <div id="pageResults"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar Ad -->
+            <aside class="ad-sidebar d-none d-lg-block">
+                <!-- Ad placeholder -->
+            </aside>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Subedit</h4>
+                <p>Your complete online editing solution</p>
+            </div>
+            <div class="footer-section">
+                <h4>Tools</h4>
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="crop-image.html">Crop Image</a>
+                <a href="remove-background.html">Remove Background</a>
+                <a href="convert-jpg.html">Convert to JPG</a>
+                <a href="convert-from-jpg.html">Convert from JPG</a>
+                <a href="add-watermark.html">Add Watermark</a>
+                <a href="remove-watermark.html">Remove Watermark</a>
+                <a href="photo-effects.html">Photo Effects</a>
+                <a href="pdf-tools.html">PDF Tools</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Subedit. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // PDF.js worker
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        }
+
+        // Preview PDFs
+        async function renderPDF(file, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (!file) return;
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                
+                // Only render first page for preview
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({scale: 1.2});
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                
+                await page.render({canvasContext: ctx, viewport: viewport}).promise;
+                container.appendChild(canvas);
+                
+                // Add page count
+                const pageCount = document.createElement('div');
+                pageCount.style.position = 'absolute';
+                pageCount.style.bottom = '10px';
+                pageCount.style.right = '10px';
+                pageCount.style.background = 'rgba(0,0,0,0.6)';
+                pageCount.style.color = 'white';
+                pageCount.style.padding = '5px 10px';
+                pageCount.style.borderRadius = '4px';
+                pageCount.innerHTML = `<i class="fas fa-file-lines me-1"></i> ${pdf.numPages} pages`;
+                container.appendChild(pageCount);
+            } catch (error) {
+                container.innerHTML = `<div class="placeholder text-danger">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <p>Error loading PDF: ${error.message}</p>
+                </div>`;
+            }
+        }
+
+        document.getElementById('pdf1').addEventListener('change', e => {
+            if (e.target.files.length > 0) {
+                renderPDF(e.target.files[0], 'preview1');
+                document.getElementById('fileName1').textContent = e.target.files[0].name;
+                document.getElementById('fileSelected1').style.display = 'block';
+                document.getElementById('uploadContainer1').style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+            }
+        });
+        
+        document.getElementById('pdf2').addEventListener('change', e => {
+            if (e.target.files.length > 0) {
+                renderPDF(e.target.files[0], 'preview2');
+                document.getElementById('fileName2').textContent = e.target.files[0].name;
+                document.getElementById('fileSelected2').style.display = 'block';
+                document.getElementById('uploadContainer2').style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+            }
+        });
+
+        // Add drag and drop functionality
+        ['uploadContainer1', 'uploadContainer2'].forEach((containerId, index) => {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(index === 0 ? 'pdf1' : 'pdf2');
+            
+            // Prevent the container click from triggering the input directly
+            container.addEventListener('click', (e) => {
+                if (e.target !== input) {
+                    e.preventDefault();
+                    input.click();
+                }
+            });
+            
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                container.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+                container.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
+            });
+            
+            container.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                if (!input.files.length) {
+                    container.style.borderColor = '#d1d5db';
+                    container.style.backgroundColor = '#f8f9fa';
+                }
+            });
+            
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files.length && e.dataTransfer.files[0].type === 'application/pdf') {
+                    input.files = e.dataTransfer.files;
+                    const event = new Event('change', { bubbles: true });
+                    input.dispatchEvent(event);
+                }
+            });
+        });
+
+        // Extract text from all pages, return array of page texts
+        async function extractTextPages(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+            let pages = [];
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                // Join all text items, normalize whitespace
+                const text = content.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
+                pages.push(text);
+            }
+            
+            return pages;
+        }
+
+        // Advanced word-level diff
+        function diffWords(oldText, newText) {
+            const oldWords = oldText.split(' ');
+            const newWords = newText.split(' ');
+            
+            // Initialize LCS matrix
+            const matrix = Array(oldWords.length + 1).fill().map(() => Array(newWords.length + 1).fill(0));
+            
+            // Fill the matrix
+            for (let i = 1; i <= oldWords.length; i++) {
+                for (let j = 1; j <= newWords.length; j++) {
+                    if (oldWords[i-1] === newWords[j-1]) {
+                        matrix[i][j] = matrix[i-1][j-1] + 1;
+                    } else {
+                        matrix[i][j] = Math.max(matrix[i-1][j], matrix[i][j-1]);
+                    }
+                }
+            }
+            
+            // Backtrack to find the diff
+            let i = oldWords.length;
+            let j = newWords.length;
+            let removedCount = 0;
+            let addedCount = 0;
+            
+            const diff = [];
+            
+            while (i > 0 || j > 0) {
+                if (i > 0 && j > 0 && oldWords[i-1] === newWords[j-1]) {
+                    diff.unshift({ type: 'same', word: oldWords[i-1] });
+                    i--;
+                    j--;
+                } else if (j > 0 && (i === 0 || matrix[i][j-1] >= matrix[i-1][j])) {
+                    diff.unshift({ type: 'added', word: newWords[j-1] });
+                    addedCount++;
+                    j--;
+                } else if (i > 0 && (j === 0 || matrix[i][j-1] < matrix[i-1][j])) {
+                    diff.unshift({ type: 'removed', word: oldWords[i-1] });
+                    removedCount++;
+                    i--;
+                }
+            }
+            
+            // Find consecutive changes for better reporting
+            const changes = [];
+            let currentChange = null;
+            
+            diff.forEach((item, index) => {
+                if (item.type !== 'same') {
+                    if (!currentChange || currentChange.type !== item.type) {
+                        if (currentChange) {
+                            changes.push(currentChange);
+                        }
+                        currentChange = {
+                            type: item.type,
+                            words: [item.word],
+                            index: index,
+                            context: {
+                                before: [],
+                                after: []
+                            }
+                        };
+                        
+                        // Get context (5 words before and after)
+                        for (let c = Math.max(0, index - 5); c < index; c++) {
+                            if (diff[c] && diff[c].type === 'same') {
+                                currentChange.context.before.push(diff[c].word);
+                            }
+                        }
+                    } else {
+                        currentChange.words.push(item.word);
+                    }
+                } else if (currentChange) {
+                    // Add context after the change
+                    if (currentChange.context.after.length < 5) {
+                        currentChange.context.after.push(item.word);
+                    }
+                    
+                    // If we have 5 words after or reached the end of same words, finalize this change
+                    if (currentChange.context.after.length >= 5 || 
+                        index === diff.length - 1 || 
+                        diff[index + 1]?.type !== 'same') {
+                        changes.push(currentChange);
+                        currentChange = null;
+                    }
+                }
+            });
+            
+            if (currentChange) {
+                changes.push(currentChange);
+            }
+            
+            // Process changes to create before/after pairs
+            const editPairs = [];
+            changes.forEach((change, idx) => {
+                if (!change) return; // Skip null changes
+                
+                if (change.type === 'removed') {
+                    // Look for a corresponding 'added' change that might be a modification
+                    const nextChange = changes[idx + 1];
+                    if (nextChange && nextChange.type === 'added' && 
+                        Math.abs(change.index - nextChange.index) < 10) {
+                        // This is likely a modification (text replaced with other text)
+                        editPairs.push({
+                            type: 'modified',
+                            original: change.words.join(' '),
+                            modified: nextChange.words.join(' '),
+                            context: {
+                                before: change.context.before.join(' '),
+                                after: nextChange.context.after.join(' ')
+                            }
+                        });
+                        // Skip the next change as we've already processed it
+                        changes[idx + 1] = null;
+                    } else {
+                        // This is a pure deletion
+                        editPairs.push({
+                            type: 'removed',
+                            original: change.words.join(' '),
+                            modified: '',
+                            context: change.context
+                        });
+                    }
+                } else if (change && change.type === 'added') {
+                    // This is a pure addition
+                    editPairs.push({
+                        type: 'added',
+                        original: '',
+                        modified: change.words.join(' '),
+                        context: change.context
+                    });
+                }
+            });
+            
+            // Convert diff to HTML for display
+            let result = '';
+            diff.forEach(item => {
+                if (item.type === 'same') {
+                    result += item.word + ' ';
+                } else if (item.type === 'removed') {
+                    result += `<span class="diff-removed">${item.word}</span> `;
+                } else if (item.type === 'added') {
+                    result += `<span class="diff-added">${item.word}</span> `;
+                }
+            });
+            
+            return {
+                html: result,
+                stats: {
+                    removed: removedCount,
+                    added: addedCount,
+                    unchanged: diff.filter(item => item.type === 'same').length
+                },
+                changes: changes.filter(Boolean),
+                editPairs: editPairs
+            };
+        }
+
+        document.getElementById('compareBtn').addEventListener('click', async () => {
+            const file1 = document.getElementById('pdf1').files[0];
+            const file2 = document.getElementById('pdf2').files[0];
+            
+            if (!file1 || !file2) {
+                alert('Please upload both PDFs to compare.');
+                return;
+            }
+            
+            // Show loading indicator
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.style.display = 'flex';
+            
+            // Hide previous results
+            document.getElementById('changeReport').style.display = 'none';
+            
+            try {
+                const pages1 = await extractTextPages(file1);
+                const pages2 = await extractTextPages(file2);
+
+                const maxPages = Math.max(pages1.length, pages2.length);
+                let pageResultsHtml = '';
+                let hasDiff = false;
+                let totalAdded = 0;
+                let totalRemoved = 0;
+                let totalPages = 0;
+                let editCounter = 0;
+                
+                for (let p = 0; p < maxPages; p++) {
+                    const text1 = pages1[p] || '';
+                    const text2 = pages2[p] || '';
+                    
+                    if (text1 === text2) continue;
+                    
+                    hasDiff = true;
+                    totalPages++;
+                    
+                    const diffResult = diffWords(text1, text2);
+                    totalAdded += diffResult.stats.added;
+                    totalRemoved += diffResult.stats.removed;
+                    
+                    // Create a bullet-point list of edits
+                    let editListHtml = '<ul class="changes-list mt-3">';
+                    
+                    diffResult.editPairs.forEach(edit => {
+                        editCounter++;
+                        
+                        if (edit.type === 'modified') {
+                            editListHtml += `
+                                <li>
+                                    <span class="edit-number">Edit ${editCounter}:</span>
+                                    <span class="pdf-version original">PDF 1:</span>
+                                    <div class="pdf-text original">${edit.original}</div>
+                                    <span class="pdf-version modified">PDF 2:</span>
+                                    <div class="pdf-text modified">${edit.modified}</div>
+                                </li>`;
+                        } else if (edit.type === 'removed') {
+                            editListHtml += `
+                                <li>
+                                    <span class="edit-number">Edit ${editCounter}:</span>
+                                    <span class="pdf-version original">PDF 1 (removed text):</span>
+                                    <div class="pdf-text original">${edit.original}</div>
+                                </li>`;
+                        } else if (edit.type === 'added') {
+                            editListHtml += `
+                                <li>
+                                    <span class="edit-number">Edit ${editCounter}:</span>
+                                    <span class="pdf-version modified">PDF 2 (added text):</span>
+                                    <div class="pdf-text modified">${edit.modified}</div>
+                                </li>`;
+                        }
+                    });
+                    
+                    editListHtml += '</ul>';
+                    
+                    pageResultsHtml += `
+                        <div class="page-diff">
+                            <div class="page-title">
+                                <i class="fas fa-file-lines me-2"></i>
+                                Page ${p+1}
+                                <span class="ms-2 badge bg-light text-dark">
+                                    <i class="fas fa-plus-circle text-success me-1"></i>${diffResult.stats.added}
+                                    <i class="fas fa-minus-circle text-danger ms-2 me-1"></i>${diffResult.stats.removed}
+                                </span>
+                            </div>
+                            ${editListHtml}
+                        </div>`;
+                }
+
+                // Create summary
+                const summaryHtml = `
+                    <div class="summary-stat">
+                        <div class="summary-number">${totalPages}</div>
+                        <div class="summary-label">Pages with changes</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-number text-success">${totalAdded}</div>
+                        <div class="summary-label">Words added</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-number text-danger">${totalRemoved}</div>
+                        <div class="summary-label">Words removed</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-number">${editCounter}</div>
+                        <div class="summary-label">Total edits</div>
+                    </div>
+                `;
+
+                // Update the UI
+                const reportDiv = document.getElementById('changeReport');
+                const pageResultsDiv = document.getElementById('pageResults');
+                const summaryDiv = document.getElementById('comparisonSummary');
+                
+                if (!hasDiff) {
+                    pageResultsDiv.innerHTML = `
+                        <div class="no-differences">
+                            <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                            <h5>No differences found!</h5>
+                            <p>The documents appear to be identical.</p>
+                        </div>`;
+                    summaryDiv.style.display = 'none';
+                } else {
+                    pageResultsDiv.innerHTML = pageResultsHtml;
+                    summaryDiv.innerHTML = summaryHtml;
+                    summaryDiv.style.display = 'flex';
+                }
+                
+                reportDiv.style.display = 'block';
+            } catch (error) {
+                alert(`Error comparing PDFs: ${error.message}`);
+            } finally {
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

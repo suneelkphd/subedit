@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online tool to edit text in PDF files. Change font style, size, color, and more directly in your browser.">
+    <meta name="keywords" content="edit PDF text, PDF editor, modify PDF, change PDF text, online PDF editor, free PDF tools">
+    <meta name="author" content="Subedit">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Subedit - Free Online PDF Text Editor">
+    <meta property="og:description" content="Edit text in PDF documents online for free. Change font style, size, color, and formatting without installing any software.">
+    <meta property="og:url" content="https://subedit.com/edit-pdf-text.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Subedit - Edit PDF Text">
+    <meta name="twitter:description" content="Edit text in PDF documents online for free without installing any software.">
+    <title>Subedit - Edit PDF Text | Free Online PDF Editor</title>
+    <link rel="canonical" href="https://subedit.com/edit-pdf-text.html">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600&family=Lato:wght@400;700&family=Montserrat:wght@400;500;600&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #357ABD;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --light-text: #6c757d;
+            --toolbar-bg: #ffffff;
+            --toolbar-border: #e9ecef;
+            --canvas-bg: #f0f0f0;
+        }
+
+        .editor-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 300px);
+            min-height: 600px;
+        }
+
+        .file-drop-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        .file-drop-area:hover, .file-drop-area.drag-over {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 144, 226, 0.05);
+        }
+
+        .file-drop-area input[type="file"] {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--toolbar-border);
+            background-color: var(--toolbar-bg);
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            border-right: 1px solid #e9ecef;
+            padding-right: 0.75rem;
+            margin-right: 0.75rem;
+        }
+
+        .toolbar-section:last-child {
+            border-right: none;
+        }
+
+        .toolbar-button {
+            background: none;
+            border: none;
+            border-radius: 4px;
+            padding: 0.4rem 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--dark-text);
+        }
+
+        .toolbar-button:hover {
+            background-color: #f0f0f0;
+            color: var(--primary-color);
+        }
+
+        .toolbar-button.active {
+            background-color: rgba(74, 144, 226, 0.1);
+            color: var(--primary-color);
+        }
+
+        .toolbar-select {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+        }
+
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .editor-content {
+            flex-grow: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pdf-container {
+            flex-grow: 1;
+            overflow: auto;
+            background-color: var(--canvas-bg);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .canvas-container {
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            margin: 0 auto;
+        }
+
+        .page-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: var(--toolbar-bg);
+            border-top: 1px solid var(--toolbar-border);
+        }
+
+        .page-navigation button {
+            background: none;
+            border: none;
+            border-radius: 4px;
+            padding: 0.4rem 0.8rem;
+            margin: 0 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-navigation button:hover {
+            background-color: #f0f0f0;
+            color: var(--primary-color);
+        }
+
+        .page-navigation button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-number {
+            display: inline-block;
+            margin: 0 1rem;
+            font-size: 0.9rem;
+        }
+
+        #currentPage {
+            width: 40px;
+            text-align: center;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 0.25rem;
+            margin: 0 0.25rem;
+        }
+
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            z-index: 100;
+        }
+
+        .info-banner {
+            background-color: #e6f3ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-icon {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        #errorDetails {
+            display: none;
+            margin-top: 10px;
+            color: var(--accent-color);
+            background-color: #fff5f5;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .toolbar-section {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                padding-right: 0;
+                margin-right: 0;
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.5rem;
+                width: 100%;
+            }
+            
+            .toolbar-section:last-child {
+                border-bottom: none;
+            }
+            
+            .editor-container {
+                height: calc(100vh - 200px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="index.html" class="logo">
+                <h1>Subedit</h1>
+                <span class="tagline">sab kuch edit</span>
+            </a>
+            <div class="nav-links">
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="remove-background.html">Remove BG</a>
+                <a href="convert-jpg.html">Convert</a>
+                <a href="pdf-tools.html" class="pdf-tools">PDF Tools</a>
+                <button class="btn-login">Login / Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Privacy Notice Banner -->
+    <div class="privacy-banner">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: center; text-align: center;">
+            <i class="fas fa-shield-alt" style="color: #4A90E2; margin-right: 0.5rem;"></i>
+            <span>Your privacy matters! All processing happens in your browser - we never store your files. <a href="privacy.html" style="color: #4A90E2; text-decoration: underline;">Learn more</a></span>
+        </div>
+    </div>
+
+    <main>
+        <section class="header text-center">
+            <div class="container">
+                <h1>Edit PDF Text</h1>
+                <p class="lead">Modify text in your PDF documents with our easy-to-use online editor</p>
+            </div>
+        </section>
+
+        <div class="page-container">
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Info Banner -->
+                <div class="info-banner">
+                    <div class="info-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        Upload a PDF file to edit its text. You can change font style, size, color, and formatting. All processing happens in your browser - your files remain private.
+                    </div>
+                </div>
+
+                <!-- File Drop Area (Initial) -->
+                <div class="file-drop-area" id="initialDropArea">
+                    <i class="fas fa-file-pdf fa-3x mb-3" style="color: var(--primary-color);"></i>
+                    <h3 class="mb-2">Drop your PDF file here</h3>
+                    <p class="mb-3">or</p>
+                    <label for="pdfFileInput" class="btn btn-primary">Select PDF</label>
+                    <input type="file" id="pdfFileInput" accept=".pdf">
+                    <p class="mt-3 text-muted">Maximum file size: 50MB</p>
+                </div>
+
+                <!-- Error Details -->
+                <div id="errorDetails"></div>
+
+                <!-- PDF Editor (Shows after upload) -->
+                <div class="editor-container" id="pdfEditorContainer" style="display: none;">
+                    <!-- Toolbar -->
+                    <div class="toolbar" id="editorToolbar">
+                        <div class="toolbar-section">
+                            <select id="fontFamily" class="toolbar-select">
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Tahoma">Tahoma</option>
+                                <option value="Trebuchet MS">Trebuchet MS</option>
+                            </select>
+                            <select id="fontSize" class="toolbar-select">
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="14">14</option>
+                                <option value="16">16</option>
+                                <option value="18">18</option>
+                                <option value="20">20</option>
+                                <option value="22">22</option>
+                                <option value="24">24</option>
+                                <option value="28">28</option>
+                                <option value="32">32</option>
+                                <option value="36">36</option>
+                                <option value="48">48</option>
+                                <option value="60">60</option>
+                                <option value="72">72</option>
+                            </select>
+                        </div>
+                        <div class="toolbar-section">
+                            <button id="boldButton" class="toolbar-button" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button id="italicButton" class="toolbar-button" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button id="underlineButton" class="toolbar-button" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                        </div>
+                        <div class="toolbar-section">
+                            <button id="alignLeftButton" class="toolbar-button" title="Align Left">
+                                <i class="fas fa-align-left"></i>
+                            </button>
+                            <button id="alignCenterButton" class="toolbar-button" title="Align Center">
+                                <i class="fas fa-align-center"></i>
+                            </button>
+                            <button id="alignRightButton" class="toolbar-button" title="Align Right">
+                                <i class="fas fa-align-right"></i>
+                            </button>
+                        </div>
+                        <div class="toolbar-section">
+                            <label for="textColorPicker" title="Text Color">
+                                <i class="fas fa-font me-2" style="color: var(--dark-text);"></i>
+                            </label>
+                            <input type="color" id="textColorPicker" class="color-picker" value="#000000">
+                            
+                            <label for="backgroundColorPicker" class="ms-3 me-1" title="Highlight Color">
+                                <i class="fas fa-highlighter" style="color: var(--dark-text);"></i>
+                            </label>
+                            <input type="color" id="backgroundColorPicker" class="color-picker" value="#ffff00">
+                        </div>
+                        <div class="toolbar-section">
+                            <button id="addTextButton" class="toolbar-button" title="Add Text">
+                                <i class="fas fa-plus"></i> Add Text
+                            </button>
+                            <button id="deleteButton" class="toolbar-button" title="Delete Selected">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="toolbar-section">
+                            <button id="saveButton" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Save PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Editor Content Area -->
+                    <div class="editor-content">
+                        <div class="pdf-container" id="pdfContainer">
+                            <div class="canvas-container" id="canvasContainer">
+                                <canvas id="pdfCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="loading-spinner" id="loadingSpinner"></div>
+                    </div>
+
+                    <!-- Page Navigation -->
+                    <div class="page-navigation">
+                        <button id="firstPageBtn" title="First Page">
+                            <i class="fas fa-angle-double-left"></i>
+                        </button>
+                        <button id="prevPageBtn" title="Previous Page">
+                            <i class="fas fa-angle-left"></i>
+                        </button>
+                        <div class="page-number">
+                            <input type="number" id="currentPage" min="1" value="1"> / <span id="totalPages">1</span>
+                        </div>
+                        <button id="nextPageBtn" title="Next Page">
+                            <i class="fas fa-angle-right"></i>
+                        </button>
+                        <button id="lastPageBtn" title="Last Page">
+                            <i class="fas fa-angle-double-right"></i>
+                        </button>
+                        <div class="ms-3">
+                            <select id="zoomLevel" class="toolbar-select">
+                                <option value="0.5">50%</option>
+                                <option value="0.75">75%</option>
+                                <option value="1" selected>100%</option>
+                                <option value="1.25">125%</option>
+                                <option value="1.5">150%</option>
+                                <option value="2">200%</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Subedit</h3>
+                <p>Easy, free online tools for editing images and PDFs</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="compress.html">Compress Image</a></li>
+                    <li><a href="resize.html">Resize Image</a></li>
+                    <li><a href="remove-background.html">Remove Background</a></li>
+                    <li><a href="pdf-tools.html">PDF Tools</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Subedit. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Set PDF.js worker path
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // DOM elements
+        const initialDropArea = document.getElementById('initialDropArea');
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        const pdfEditorContainer = document.getElementById('pdfEditorContainer');
+        const pdfContainer = document.getElementById('pdfContainer');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const pdfCanvas = document.getElementById('pdfCanvas');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const errorDetails = document.getElementById('errorDetails');
+        
+        // Page navigation elements
+        const firstPageBtn = document.getElementById('firstPageBtn');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const lastPageBtn = document.getElementById('lastPageBtn');
+        const currentPageInput = document.getElementById('currentPage');
+        const totalPagesSpan = document.getElementById('totalPages');
+        const zoomLevelSelect = document.getElementById('zoomLevel');
+        
+        // Text formatting elements
+        const fontFamilySelect = document.getElementById('fontFamily');
+        const fontSizeSelect = document.getElementById('fontSize');
+        const boldButton = document.getElementById('boldButton');
+        const italicButton = document.getElementById('italicButton');
+        const underlineButton = document.getElementById('underlineButton');
+        const alignLeftButton = document.getElementById('alignLeftButton');
+        const alignCenterButton = document.getElementById('alignCenterButton');
+        const alignRightButton = document.getElementById('alignRightButton');
+        const textColorPicker = document.getElementById('textColorPicker');
+        const backgroundColorPicker = document.getElementById('backgroundColorPicker');
+        const addTextButton = document.getElementById('addTextButton');
+        const deleteButton = document.getElementById('deleteButton');
+        const saveButton = document.getElementById('saveButton');
+        
+        // State variables
+        let pdfFile = null;
+        let pdfDocument = null;
+        let currentPageNum = 1;
+        let totalPages = 0;
+        let zoomLevel = 1;
+        let fabricCanvas = null;
+        let selectedFont = 'Arial';
+        let fontSizeValue = 16;
+        let textColor = '#000000';
+        let backgroundColor = null;
+        let isBold = false;
+        let isItalic = false;
+        let isUnderline = false;
+        let textAlign = 'left';
+        let editMode = 'select'; // 'select', 'text', 'image'
+        
+        // Event Listeners
+        initialDropArea.addEventListener('dragover', handleDragOver);
+        initialDropArea.addEventListener('dragleave', handleDragLeave);
+        initialDropArea.addEventListener('drop', handleFileDrop);
+        
+        // Add explicit handler for the Select PDF button
+        document.querySelector('label[for="pdfFileInput"]').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // Click handler for file drop area
+        initialDropArea.addEventListener('click', function(e) {
+            if (e.target === initialDropArea || 
+                e.target.closest('.fas') || 
+                e.target.tagName === 'H3' || 
+                e.target.tagName === 'P') {
+                e.preventDefault();
+                setTimeout(() => {
+                    pdfFileInput.click();
+                }, 10);
+            }
+        });
+        
+        pdfFileInput.addEventListener('change', handleFileSelect);
+        
+        // Page navigation events
+        firstPageBtn.addEventListener('click', goToFirstPage);
+        prevPageBtn.addEventListener('click', goToPrevPage);
+        nextPageBtn.addEventListener('click', goToNextPage);
+        lastPageBtn.addEventListener('click', goToLastPage);
+        currentPageInput.addEventListener('change', goToPage);
+        zoomLevelSelect.addEventListener('change', handleZoomChange);
+        
+        // Text formatting events
+        fontFamilySelect.addEventListener('change', updateFontFamily);
+        fontSizeSelect.addEventListener('change', updateFontSize);
+        boldButton.addEventListener('click', toggleBold);
+        italicButton.addEventListener('click', toggleItalic);
+        underlineButton.addEventListener('click', toggleUnderline);
+        alignLeftButton.addEventListener('click', () => updateTextAlign('left'));
+        alignCenterButton.addEventListener('click', () => updateTextAlign('center'));
+        alignRightButton.addEventListener('click', () => updateTextAlign('right'));
+        textColorPicker.addEventListener('input', updateTextColor);
+        backgroundColorPicker.addEventListener('input', updateBackgroundColor);
+        addTextButton.addEventListener('click', addNewText);
+        deleteButton.addEventListener('click', deleteSelected);
+        saveButton.addEventListener('click', savePDF);
+        
+        // Handle drag events
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+        }
+        
+        // Handle file drop
+        function handleFileDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length === 1 && files[0].type === 'application/pdf') {
+                processPdfFile(files[0]);
+            } else {
+                showError('Please select a valid PDF file.');
+            }
+        }
+        
+        // Handle file select from input
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length === 1 && files[0].type === 'application/pdf') {
+                processPdfFile(files[0]);
+            } else {
+                showError('Please select a valid PDF file.');
+            }
+            pdfFileInput.value = '';
+        }
+        
+        // Process the selected PDF file
+        async function processPdfFile(file) {
+            try {
+                // Show loading
+                loadingSpinner.style.display = 'block';
+                hideError();
+                
+                // Check file size
+                if (file.size > 50 * 1024 * 1024) { // 50MB limit
+                    throw new Error('File size exceeds 50MB limit.');
+                }
+                
+                pdfFile = file;
+                
+                // Read the PDF file
+                const arrayBuffer = await readFileAsArrayBuffer(file);
+                
+                // Load the PDF using PDF.js
+                pdfDocument = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                totalPages = pdfDocument.numPages;
+                totalPagesSpan.textContent = totalPages;
+                currentPageNum = 1;
+                currentPageInput.value = currentPageNum;
+                currentPageInput.max = totalPages;
+                
+                // Initialize the editor
+                initializeEditor();
+                
+                // Show the editor
+                initialDropArea.style.display = 'none';
+                pdfEditorContainer.style.display = 'flex';
+                
+                // Load the first page
+                await loadPage(currentPageNum);
+                
+                // Hide loading
+                loadingSpinner.style.display = 'none';
+                
+                // Show success message
+                showSuccessMessage("PDF loaded successfully. Click on any text to edit.");
+                
+            } catch (error) {
+                console.error('Error processing PDF:', error);
+                loadingSpinner.style.display = 'none';
+                showError(error.message || 'Error processing PDF file. Please try another file.');
+            }
+        }
+        
+        // Initialize the editor
+        function initializeEditor() {
+            // Create a fabric.js canvas for editing
+            if (fabricCanvas) {
+                fabricCanvas.dispose();
+            }
+            
+            fabricCanvas = new fabric.Canvas('pdfCanvas', {
+                backgroundColor: 'white',
+                selection: true,
+                preserveObjectStacking: true,
+                stopContextMenu: true,
+                interactive: true,
+                hoverCursor: 'pointer'
+            });
+            
+            // Set up event listeners for canvas
+            fabricCanvas.on('selection:created', updateToolbarFromSelection);
+            fabricCanvas.on('selection:updated', updateToolbarFromSelection);
+            fabricCanvas.on('selection:cleared', resetToolbar);
+            
+            // Add double-click to edit handler
+            fabricCanvas.on('mouse:dblclick', function(options) {
+                if (options.target && (options.target.type === 'i-text' || options.target.type === 'text')) {
+                    options.target.enterEditing();
+                    fabricCanvas.setActiveObject(options.target);
+                }
+            });
+            
+            // Add mouse down handler for direct editing
+            fabricCanvas.on('mouse:down', function(options) {
+                if (options.target && (options.target.type === 'i-text' || options.target.type === 'text')) {
+                    // Set as active object
+                    fabricCanvas.setActiveObject(options.target);
+                    updateToolbarFromSelection();
+                }
+            });
+            
+            // Prevent context menu
+            fabricCanvas.upperCanvasEl.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+            
+            // Set initial canvas size
+            updateCanvasSize();
+            
+            // Enable buttons
+            updatePageNavigationButtons();
+        }
+        
+        // Load a PDF page onto the canvas
+        async function loadPage(pageNum) {
+            try {
+                if (!pdfDocument) return;
+                
+                // Show loading
+                loadingSpinner.style.display = 'block';
+                fabricCanvas.clear();
+                
+                // Get the PDF page
+                const page = await pdfDocument.getPage(pageNum);
+                
+                // Calculate viewport with zoom
+                const viewport = page.getViewport({ scale: zoomLevel });
+                
+                // Set canvas dimensions
+                fabricCanvas.setWidth(viewport.width);
+                fabricCanvas.setHeight(viewport.height);
+                
+                // First render the PDF page as background
+                await renderPdfPageBackground(page, viewport);
+                
+                // Extract text content for editing
+                await extractTextContent(page, viewport);
+                
+                // Update navigation
+                currentPageNum = pageNum;
+                currentPageInput.value = currentPageNum;
+                updatePageNavigationButtons();
+                
+                // Hide loading
+                loadingSpinner.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading page:', error);
+                loadingSpinner.style.display = 'none';
+                showError('Error loading page. Please try again.');
+            }
+        }
+        
+        // Extract text content from PDF for direct editing
+        async function extractTextContent(page, viewport) {
+            try {
+                // Get text content from the PDF page
+                const textContent = await page.getTextContent();
+                
+                // Process text items
+                if (!textContent.items || textContent.items.length === 0) {
+                    console.log("No text found on this page");
+                    return;
+                }
+                
+                // Map to keep track of text positions to avoid duplicates
+                const textPositionMap = new Map();
+                
+                // Sort items by their vertical position (top to bottom)
+                // Then by horizontal position (left to right)
+                const sortedItems = [...textContent.items].sort((a, b) => {
+                    // Convert PDF coordinates to canvas coordinates
+                    const aTransform = pdfjsLib.Util.transform(
+                        viewport.transform,
+                        [1, 0, 0, -1, a.transform[4], a.transform[5]]
+                    );
+                    const bTransform = pdfjsLib.Util.transform(
+                        viewport.transform,
+                        [1, 0, 0, -1, b.transform[4], b.transform[5]]
+                    );
+                    
+                    // Get y-coordinates (vertical position)
+                    const aY = Math.round(aTransform[5]);
+                    const bY = Math.round(bTransform[5]);
+                    
+                    // If they're on approximately the same line
+                    if (Math.abs(aY - bY) < 5) {
+                        // Sort by x-coordinate (horizontal position)
+                        return aTransform[4] - bTransform[4];
+                    }
+                    
+                    // Otherwise, sort by y-coordinate
+                    return aY - bY;
+                });
+                
+                // Group text by lines
+                const textLines = [];
+                let currentY = null;
+                let currentLine = [];
+                
+                sortedItems.forEach((item) => {
+                    if (!item.str.trim()) return; // Skip empty strings
+                    
+                    // Get position
+                    const transform = pdfjsLib.Util.transform(
+                        viewport.transform,
+                        [1, 0, 0, -1, item.transform[4], item.transform[5]]
+                    );
+                    
+                    const x = transform[4];
+                    const y = Math.round(transform[5]);
+                    
+                    // Check if we need to start a new line
+                    if (currentY === null || Math.abs(y - currentY) > 5) {
+                        if (currentLine.length > 0) {
+                            textLines.push(currentLine);
+                        }
+                        currentY = y;
+                        currentLine = [];
+                    }
+                    
+                    // Add to current line
+                    currentLine.push({
+                        text: item.str,
+                        x: x,
+                        y: y,
+                        width: item.width * viewport.scale,
+                        height: item.height * viewport.scale,
+                        fontSize: Math.round(item.height * viewport.scale),
+                        fontFamily: item.fontName || 'Arial',
+                        color: item.color
+                    });
+                });
+                
+                // Add the last line if it exists
+                if (currentLine.length > 0) {
+                    textLines.push(currentLine);
+                }
+                
+                // Create editable text objects
+                textLines.forEach(line => {
+                    // For each line, attempt to merge nearby text items
+                    let currentText = null;
+                    const mergedItems = [];
+                    
+                    line.forEach(item => {
+                        if (!currentText) {
+                            currentText = {...item};
+                            mergedItems.push(currentText);
+                            return;
+                        }
+                        
+                        // Check if this item is close to the previous one
+                        const expectedX = currentText.x + currentText.width;
+                        const gap = item.x - expectedX;
+                        
+                        // If they're close, merge them
+                        if (gap < currentText.fontSize * 0.5) {
+                            currentText.text += ' ' + item.text;
+                            currentText.width += gap + item.width;
+                        } else {
+                            // Otherwise, start a new text item
+                            currentText = {...item};
+                            mergedItems.push(currentText);
+                        }
+                    });
+                    
+                    // Create fabric text objects for the merged items
+                    mergedItems.forEach(item => {
+                        // Create a unique position key
+                        const posKey = `${Math.round(item.x)}-${Math.round(item.y)}-${item.text}`;
+                        
+                        // Skip if already added
+                        if (textPositionMap.has(posKey)) return;
+                        textPositionMap.set(posKey, true);
+                        
+                        // Process font style
+                        let fontStyle = 'normal';
+                        let fontWeight = 'normal';
+                        let fontColor = '#000000';
+                        
+                        // Extract color
+                        if (item.color) {
+                            if (Array.isArray(item.color)) {
+                                // RGB color
+                                const r = Math.round(item.color[0] * 255);
+                                const g = Math.round(item.color[1] * 255);
+                                const b = Math.round(item.color[2] * 255);
+                                fontColor = `rgb(${r}, ${g}, ${b})`;
+                            } else if (typeof item.color === 'number') {
+                                // Grayscale
+                                const val = Math.round(item.color * 255);
+                                fontColor = `rgb(${val}, ${val}, ${val})`;
+                            }
+                        }
+                        
+                        // Map font name to detect bold/italic
+                        if (item.fontFamily) {
+                            const fontName = item.fontFamily.toLowerCase();
+                            if (fontName.includes('bold') || fontName.includes('black')) {
+                                fontWeight = 'bold';
+                            }
+                            if (fontName.includes('italic') || fontName.includes('oblique')) {
+                                fontStyle = 'italic';
+                            }
+                        }
+                        
+                        // Create fabric text object
+                        const text = new fabric.IText(item.text, {
+                            left: item.x,
+                            top: item.y - item.height, // Adjust position to match PDF text
+                            fontSize: item.fontSize,
+                            fontFamily: 'Arial', // Default for now
+                            fontWeight: fontWeight,
+                            fontStyle: fontStyle,
+                            fill: fontColor,
+                            originX: 'left',
+                            originY: 'top',
+                            selectable: true,
+                            editable: true
+                        });
+                        
+                        fabricCanvas.add(text);
+                    });
+                });
+                
+                fabricCanvas.renderAll();
+                showSuccessMessage(`PDF text extracted for editing. Click any text to edit directly.`);
+                
+            } catch (error) {
+                console.error('Error extracting text content:', error);
+                showError('Some text elements could not be extracted. You can still add new text.');
+            }
+        }
+        
+        // Render PDF page as background
+        async function renderPdfPageBackground(page, viewport) {
+            try {
+                // Create a temporary canvas for rendering the PDF page
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = viewport.width;
+                tempCanvas.height = viewport.height;
+                const tempContext = tempCanvas.getContext('2d');
+                
+                // Render the PDF page
+                const renderContext = {
+                    canvasContext: tempContext,
+                    viewport: viewport
+                };
+                
+                await page.render(renderContext).promise;
+                
+                // Set the rendered page as background image
+                fabric.Image.fromURL(tempCanvas.toDataURL(), function(img) {
+                    fabricCanvas.setBackgroundImage(img, fabricCanvas.renderAll.bind(fabricCanvas));
+                });
+                
+                // Clean up
+                tempCanvas.remove();
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Error rendering PDF page:', error);
+                return false;
+            }
+        }
+        
+        // Navigation functions
+        function goToFirstPage() {
+            if (currentPageNum !== 1) {
+                loadPage(1);
+            }
+        }
+        
+        function goToPrevPage() {
+            if (currentPageNum > 1) {
+                loadPage(currentPageNum - 1);
+            }
+        }
+        
+        function goToNextPage() {
+            if (currentPageNum < totalPages) {
+                loadPage(currentPageNum + 1);
+            }
+        }
+        
+        function goToLastPage() {
+            if (currentPageNum !== totalPages) {
+                loadPage(totalPages);
+            }
+        }
+        
+        function goToPage() {
+            const pageNum = parseInt(currentPageInput.value);
+            if (pageNum >= 1 && pageNum <= totalPages && pageNum !== currentPageNum) {
+                loadPage(pageNum);
+            } else {
+                currentPageInput.value = currentPageNum;
+            }
+        }
+        
+        function handleZoomChange() {
+            zoomLevel = parseFloat(zoomLevelSelect.value);
+            loadPage(currentPageNum);
+        }
+        
+        // Update the canvas size based on container
+        function updateCanvasSize() {
+            const containerWidth = pdfContainer.clientWidth;
+            const containerHeight = pdfContainer.clientHeight;
+            
+            // Set maximum dimensions based on container
+            canvasContainer.style.maxWidth = '100%';
+            canvasContainer.style.maxHeight = containerHeight + 'px';
+        }
+        
+        // Update page navigation buttons based on current page
+        function updatePageNavigationButtons() {
+            firstPageBtn.disabled = currentPageNum === 1;
+            prevPageBtn.disabled = currentPageNum === 1;
+            nextPageBtn.disabled = currentPageNum === totalPages;
+            lastPageBtn.disabled = currentPageNum === totalPages;
+        }
+        
+        // Text formatting functions
+        function updateFontFamily() {
+            selectedFont = fontFamilySelect.value;
+            applyTextFormatting();
+        }
+        
+        function updateFontSize() {
+            fontSizeValue = parseInt(fontSizeSelect.value);
+            applyTextFormatting();
+        }
+        
+        function toggleBold() {
+            isBold = !isBold;
+            boldButton.classList.toggle('active', isBold);
+            applyTextFormatting();
+        }
+        
+        function toggleItalic() {
+            isItalic = !isItalic;
+            italicButton.classList.toggle('active', isItalic);
+            applyTextFormatting();
+        }
+        
+        function toggleUnderline() {
+            isUnderline = !isUnderline;
+            underlineButton.classList.toggle('active', isUnderline);
+            applyTextFormatting();
+        }
+        
+        function updateTextAlign(align) {
+            textAlign = align;
+            alignLeftButton.classList.toggle('active', align === 'left');
+            alignCenterButton.classList.toggle('active', align === 'center');
+            alignRightButton.classList.toggle('active', align === 'right');
+            applyTextFormatting();
+        }
+        
+        function updateTextColor() {
+            textColor = textColorPicker.value;
+            applyTextFormatting();
+        }
+        
+        function updateBackgroundColor() {
+            backgroundColor = backgroundColorPicker.value;
+            applyTextFormatting();
+        }
+        
+        // Apply text formatting to selected objects
+        function applyTextFormatting() {
+            const activeObject = fabricCanvas.getActiveObject();
+            if (!activeObject) return;
+            
+            if (activeObject.type === 'i-text' || activeObject.type === 'text') {
+                // Apply font family
+                activeObject.set('fontFamily', selectedFont);
+                
+                // Apply font size
+                activeObject.set('fontSize', fontSizeValue);
+                
+                // Apply text color
+                activeObject.set('fill', textColor);
+                
+                // Apply background color
+                if (backgroundColor && backgroundColor !== '#ffffff') {
+                    activeObject.set('backgroundColor', backgroundColor);
+                } else {
+                    activeObject.set('backgroundColor', null);
+                }
+                
+                // Apply bold
+                activeObject.set('fontWeight', isBold ? 'bold' : 'normal');
+                
+                // Apply italic
+                activeObject.set('fontStyle', isItalic ? 'italic' : 'normal');
+                
+                // Apply underline
+                activeObject.set('underline', isUnderline);
+                
+                // Apply text align
+                activeObject.set('textAlign', textAlign);
+                
+                // Update the canvas
+                fabricCanvas.renderAll();
+                
+            } else if (activeObject.type === 'activeSelection') {
+                // Apply to multiple selected objects
+                activeObject.getObjects().forEach(obj => {
+                    if (obj.type === 'i-text' || obj.type === 'text') {
+                        // Apply font family
+                        obj.set('fontFamily', selectedFont);
+                        
+                        // Apply font size
+                        obj.set('fontSize', fontSizeValue);
+                        
+                        // Apply text color
+                        obj.set('fill', textColor);
+                        
+                        // Apply background color
+                        if (backgroundColor && backgroundColor !== '#ffffff') {
+                            obj.set('backgroundColor', backgroundColor);
+                        } else {
+                            obj.set('backgroundColor', null);
+                        }
+                        
+                        // Apply bold
+                        obj.set('fontWeight', isBold ? 'bold' : 'normal');
+                        
+                        // Apply italic
+                        obj.set('fontStyle', isItalic ? 'italic' : 'normal');
+                        
+                        // Apply underline
+                        obj.set('underline', isUnderline);
+                        
+                        // Apply text align
+                        obj.set('textAlign', textAlign);
+                    }
+                });
+                
+                // Update the canvas
+                fabricCanvas.renderAll();
+            }
+        }
+        
+        // Update toolbar based on selected text
+        function updateToolbarFromSelection() {
+            const activeObject = fabricCanvas.getActiveObject();
+            if (!activeObject) return;
+            
+            if (activeObject.type === 'i-text' || activeObject.type === 'text') {
+                // Update font family
+                if (activeObject.fontFamily) {
+                    selectedFont = activeObject.fontFamily;
+                    fontFamilySelect.value = selectedFont;
+                }
+                
+                // Update font size
+                if (activeObject.fontSize) {
+                    fontSizeValue = activeObject.fontSize;
+                    fontSizeSelect.value = fontSizeValue;
+                }
+                
+                // Update text color
+                if (activeObject.fill) {
+                    textColor = activeObject.fill;
+                    textColorPicker.value = rgbToHex(textColor);
+                }
+                
+                // Update background color
+                if (activeObject.backgroundColor) {
+                    backgroundColor = activeObject.backgroundColor;
+                    backgroundColorPicker.value = rgbToHex(backgroundColor);
+                }
+                
+                // Update bold
+                isBold = activeObject.fontWeight === 'bold';
+                boldButton.classList.toggle('active', isBold);
+                
+                // Update italic
+                isItalic = activeObject.fontStyle === 'italic';
+                italicButton.classList.toggle('active', isItalic);
+                
+                // Update underline
+                isUnderline = activeObject.underline || false;
+                underlineButton.classList.toggle('active', isUnderline);
+                
+                // Update text align
+                textAlign = activeObject.textAlign || 'left';
+                alignLeftButton.classList.toggle('active', textAlign === 'left');
+                alignCenterButton.classList.toggle('active', textAlign === 'center');
+                alignRightButton.classList.toggle('active', textAlign === 'right');
+            }
+        }
+        
+        // Helper function to convert RGB to HEX
+        function rgbToHex(color) {
+            // If already a hex color
+            if (color && color.startsWith('#')) {
+                return color;
+            }
+            
+            // If it's an RGB color
+            if (color && color.startsWith('rgb')) {
+                // Extract RGB values
+                const rgb = color.match(/\d+/g);
+                if (rgb && rgb.length === 3) {
+                    return '#' + 
+                        ('0' + parseInt(rgb[0]).toString(16)).slice(-2) +
+                        ('0' + parseInt(rgb[1]).toString(16)).slice(-2) +
+                        ('0' + parseInt(rgb[2]).toString(16)).slice(-2);
+                }
+            }
+            
+            // Default
+            return '#000000';
+        }
+        
+        // Reset toolbar to defaults
+        function resetToolbar() {
+            selectedFont = 'Arial';
+            fontFamilySelect.value = selectedFont;
+            
+            fontSizeValue = 16;
+            fontSizeSelect.value = fontSizeValue;
+            
+            textColor = '#000000';
+            textColorPicker.value = textColor;
+            
+            backgroundColor = null;
+            backgroundColorPicker.value = '#ffff00';
+            
+            isBold = false;
+            boldButton.classList.remove('active');
+            
+            isItalic = false;
+            italicButton.classList.remove('active');
+            
+            isUnderline = false;
+            underlineButton.classList.remove('active');
+            
+            textAlign = 'left';
+            alignLeftButton.classList.add('active');
+            alignCenterButton.classList.remove('active');
+            alignRightButton.classList.remove('active');
+        }
+        
+        // Add new text element
+        function addNewText() {
+            const text = new fabric.IText('Click to edit text', {
+                left: 50,
+                top: 50,
+                fontFamily: selectedFont,
+                fontSize: fontSizeValue,
+                fill: textColor,
+                backgroundColor: backgroundColor !== '#ffffff' ? backgroundColor : null,
+                fontWeight: isBold ? 'bold' : 'normal',
+                fontStyle: isItalic ? 'italic' : 'normal',
+                underline: isUnderline,
+                textAlign: textAlign,
+                editable: true
+            });
+            
+            fabricCanvas.add(text);
+            fabricCanvas.setActiveObject(text);
+            text.enterEditing();
+            text.selectAll();
+            fabricCanvas.renderAll();
+        }
+        
+        // Delete selected objects
+        function deleteSelected() {
+            const activeObject = fabricCanvas.getActiveObject();
+            if (activeObject) {
+                if (activeObject.type === 'activeSelection') {
+                    // Multiple objects selected
+                    activeObject.forEachObject(function(obj) {
+                        fabricCanvas.remove(obj);
+                    });
+                    fabricCanvas.discardActiveObject();
+                } else {
+                    // Single object selected
+                    fabricCanvas.remove(activeObject);
+                }
+                fabricCanvas.renderAll();
+            }
+        }
+        
+        // Save the edited PDF
+        async function savePDF() {
+            try {
+                // Show loading
+                loadingSpinner.style.display = 'block';
+                
+                // Create a new PDF document
+                const pdfBytes = await pdfDocument.getData();
+                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+                
+                // Get the current page
+                const page = pdfDoc.getPage(currentPageNum - 1);
+                
+                // Get page dimensions
+                const { width, height } = page.getSize();
+                
+                // Create a canvas that combines the background and edits
+                const exportCanvas = document.createElement('canvas');
+                exportCanvas.width = fabricCanvas.width;
+                exportCanvas.height = fabricCanvas.height;
+                const exportContext = exportCanvas.getContext('2d');
+                
+                // Draw the fabricCanvas (which has the background image and edits)
+                exportContext.drawImage(
+                    fabricCanvas.lowerCanvasEl, 
+                    0, 0, 
+                    fabricCanvas.width, fabricCanvas.height
+                );
+                
+                // Draw all objects from fabric canvas
+                if (fabricCanvas.backgroundImage) {
+                    exportContext.drawImage(
+                        fabricCanvas.backgroundImage.getElement(), 
+                        0, 0, 
+                        fabricCanvas.width, fabricCanvas.height
+                    );
+                }
+                
+                // Get the data URL
+                const imageData = exportCanvas.toDataURL('image/png');
+                
+                // Remove base64 prefix
+                const pngImageBytes = imageData.split(',')[1];
+                
+                // Embed the image in the PDF
+                const pngImage = await pdfDoc.embedPng(pngImageBytes);
+                
+                // Clear the page content
+                page.drawRectangle({
+                    x: 0,
+                    y: 0,
+                    width: width,
+                    height: height,
+                    color: PDFLib.rgb(1, 1, 1), // White
+                });
+                
+                // Draw the combined image
+                page.drawImage(pngImage, {
+                    x: 0,
+                    y: 0,
+                    width: width,
+                    height: height
+                });
+                
+                // Save the PDF
+                const editedPdfBytes = await pdfDoc.save();
+                
+                // Create a download link
+                const blob = new Blob([editedPdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download element
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `edited_${pdfFile.name}`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+                
+                // Hide loading
+                loadingSpinner.style.display = 'none';
+                
+                // Show success message
+                showSuccessMessage("PDF saved successfully!");
+                
+            } catch (error) {
+                console.error('Error saving PDF:', error);
+                loadingSpinner.style.display = 'none';
+                showError('Error saving PDF. Please try again.');
+            }
+        }
+        
+        // Helper function to read file as ArrayBuffer
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    resolve(reader.result);
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        // Show error message
+        function showError(message) {
+            errorDetails.textContent = message;
+            errorDetails.style.display = 'block';
+        }
+        
+        // Hide error message
+        function hideError() {
+            errorDetails.style.display = 'none';
+        }
+        
+        // Window resize handler
+        window.addEventListener('resize', function() {
+            updateCanvasSize();
+        });
+        
+        // Initialize on load
+        window.addEventListener('load', function() {
+            updateCanvasSize();
+        });
+
+        // Show success message
+        function showSuccessMessage(message) {
+            // Create a temporary success message element
+            const successDiv = document.createElement('div');
+            successDiv.style.position = 'fixed';
+            successDiv.style.top = '20px';
+            successDiv.style.left = '50%';
+            successDiv.style.transform = 'translateX(-50%)';
+            successDiv.style.backgroundColor = '#4BB543';
+            successDiv.style.color = 'white';
+            successDiv.style.padding = '10px 20px';
+            successDiv.style.borderRadius = '5px';
+            successDiv.style.zIndex = '1000';
+            successDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+            successDiv.innerHTML = `<i class="fas fa-check-circle" style="margin-right: 10px;"></i>${message}`;
+            
+            document.body.appendChild(successDiv);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                document.body.removeChild(successDiv);
+            }, 5000);
+        }
+
+        // Show tooltip
+        function showTooltip(message, duration = 3000) {
+            // Create a temporary tooltip element
+            const tooltipDiv = document.createElement('div');
+            tooltipDiv.style.position = 'absolute';
+            tooltipDiv.style.top = '50%';
+            tooltipDiv.style.left = '50%';
+            tooltipDiv.style.transform = 'translate(-50%, -50%)';
+            tooltipDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            tooltipDiv.style.color = 'white';
+            tooltipDiv.style.padding = '10px 20px';
+            tooltipDiv.style.borderRadius = '5px';
+            tooltipDiv.style.zIndex = '1001';
+            tooltipDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+            tooltipDiv.style.pointerEvents = 'none'; // Don't block interactions
+            tooltipDiv.innerHTML = `<i class="fas fa-info-circle" style="margin-right: 10px;"></i>${message}`;
+            
+            // Add to canvas container
+            canvasContainer.appendChild(tooltipDiv);
+            
+            // Remove after the specified duration
+            setTimeout(() => {
+                canvasContainer.removeChild(tooltipDiv);
+            }, duration);
+        }
+    </script>
+</body>
+</html> 

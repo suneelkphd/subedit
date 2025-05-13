@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Resize your profile picture for WhatsApp with multiple options - crop with blur, color background, auto resize, or square crop.">
+    <meta name="keywords" content="WhatsApp profile picture, resize image, crop profile photo, profile picture editor">
+    <title>WhatsApp Profile Image Resizer - Subedit</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .upload-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 2px dashed #4A90E2;
+            border-radius: 10px;
+            padding: 3rem 2rem;
+            margin: 1.5rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f9fbff;
+        }
+        
+        .upload-area:hover {
+            background: #f0f7ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #4A90E2;
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .options-container {
+            display: none;
+            margin-top: 2rem;
+        }
+        
+        .option-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .option-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .option-tab.active {
+            border-bottom: 3px solid #4A90E2;
+            color: #4A90E2;
+        }
+        
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .preview-box h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: #555;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .circular-preview {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .circular-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .color-picker-container {
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .color-picker {
+            margin-left: 10px;
+            border: none;
+            height: 30px;
+            width: 60px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .download-btn {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .download-btn:hover {
+            background: #357abd;
+        }
+        
+        .recommended-badge {
+            background: #e74c3c;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        /* Crop square container */
+        .crop-container {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .crop-image-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .crop-image {
+            display: block;
+            max-width: 100%;
+        }
+        
+        .crop-box {
+            position: absolute;
+            border: 2px dashed #4A90E2;
+            background: rgba(74, 144, 226, 0.1);
+            cursor: move;
+            box-sizing: border-box;
+        }
+        
+        /* Blur slider */
+        .blur-slider-container {
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .slider {
+            flex-grow: 1;
+            height: 6px;
+            background: #e1e1e1;
+            border-radius: 5px;
+            appearance: none;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4A90E2;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #4A90E2;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .slider-value {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="index.html" class="logo">
+                <h1>Subedit</h1>
+                <span class="tagline">sab kuch edit</span>
+            </a>
+            <div class="nav-links">
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="remove-background.html">Remove BG</a>
+                <a href="convert-jpg.html">Convert</a>
+                <a href="pdf-tools.html" class="pdf-tools">PDF Tools</a>
+                <button class="btn-login">Login / Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Privacy Notice Banner -->
+    <div class="privacy-banner" style="background: #e8f4ff; border-bottom: 1px solid #d1e9ff; padding: 0.75rem 0; margin: 80px 0 0;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: center; text-align: center;">
+            <i class="fas fa-shield-alt" style="color: #4A90E2; margin-right: 0.5rem;"></i>
+            <span>Your privacy matters! All processing happens in your browser - we never store your files. <a href="privacy.html" style="color: #4A90E2; text-decoration: underline;">Learn more</a></span>
+        </div>
+    </div>
+
+    <main>
+        <section class="hero">
+            <h1>WhatsApp Profile Image Resizer</h1>
+            <p>Resize and optimize your profile picture perfectly for WhatsApp</p>
+        </section>
+
+        <div class="content-wrapper">
+            <!-- Left Sidebar Ad -->
+            <aside class="ad-sidebar">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="YOUR-ADSENSE-ID"
+                     data-ad-slot="LEFT-AD-SLOT"
+                     data-ad-format="vertical"
+                     data-full-width-responsive="false"></ins>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="upload-container">
+                    <h2>Upload Your Image</h2>
+                    <p>Select an image to resize for your WhatsApp profile picture</p>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Drag & Drop your image here</h3>
+                        <p>or</p>
+                        <button class="btn-login">Browse Files</button>
+                        <input type="file" class="file-input" id="fileInput" accept="image/*">
+                    </div>
+                </div>
+                
+                <div class="options-container" id="optionsContainer">
+                    <h2>Choose Resize Method</h2>
+                    <p>Select how you'd like to resize your profile picture</p>
+                    
+                    <div class="option-tabs">
+                        <div class="option-tab active" data-option="blur">
+                            Crop with Blur <span class="recommended-badge">Recommended</span>
+                        </div>
+                        <div class="option-tab" data-option="color">
+                            Crop with Color
+                        </div>
+                        <div class="option-tab" data-option="resize">
+                            Auto Resize
+                        </div>
+                        <div class="option-tab" data-option="square">
+                            Square Crop
+                        </div>
+                    </div>
+                    
+                    <div class="color-picker-container" id="colorPickerContainer">
+                        <label for="colorPicker">Background Color:</label>
+                        <input type="color" id="colorPicker" class="color-picker" value="#000000">
+                    </div>
+                    
+                    <div class="blur-slider-container" id="blurSliderContainer">
+                        <label for="blurSlider">Blur Intensity:</label>
+                        <div class="slider-container">
+                            <input type="range" id="blurSlider" class="slider" min="1" max="25" value="10">
+                            <span class="slider-value" id="blurValue">10px</span>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-container" id="normalPreviewContainer">
+                        <div class="preview-box">
+                            <h3>Original Image</h3>
+                            <img id="originalPreview" class="preview-image">
+                        </div>
+                        <div class="preview-box">
+                            <h3>WhatsApp Preview</h3>
+                            <div class="circular-preview">
+                                <img id="whatsappPreview">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-container" id="cropPreviewContainer" style="display: none;">
+                        <div class="preview-box">
+                            <h3>Drag to adjust crop area</h3>
+                            <div class="crop-container" id="cropContainer">
+                                <div class="crop-image-container">
+                                    <img id="cropImage" class="crop-image">
+                                    <div id="cropBox" class="crop-box"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="preview-box">
+                            <h3>WhatsApp Preview</h3>
+                            <div class="circular-preview">
+                                <img id="cropPreview">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button class="download-btn" id="downloadBtn">
+                            <i class="fas fa-download"></i> Download Profile Picture
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar Ad -->
+            <aside class="ad-sidebar">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="YOUR-ADSENSE-ID"
+                     data-ad-slot="RIGHT-AD-SLOT"
+                     data-ad-format="vertical"
+                     data-full-width-responsive="false"></ins>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Subedit</h4>
+                <p>Your complete online editing solution</p>
+            </div>
+            <div class="footer-section">
+                <h4>Tools</h4>
+                <a href="compress.html">Compress Image</a>
+                <a href="resize.html">Resize Image</a>
+                <a href="crop-image.html">Crop Image</a>
+                <a href="remove-background.html">Remove Background</a>
+                <a href="convert-jpg.html">Convert to JPG</a>
+                <a href="convert-from-jpg.html">Convert from JPG</a>
+                <a href="add-watermark.html">Add Watermark</a>
+                <a href="remove-watermark.html">Remove Watermark</a>
+                <a href="photo-effects.html">Photo Effects</a>
+                <a href="whatsapp-profile-resizer.html">WhatsApp Profile Resizer</a>
+                <a href="pdf-tools.html">PDF Tools</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Subedit. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize AdSense ads
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const originalPreview = document.getElementById('originalPreview');
+            const whatsappPreview = document.getElementById('whatsappPreview');
+            const optionTabs = document.querySelectorAll('.option-tab');
+            const colorPickerContainer = document.getElementById('colorPickerContainer');
+            const colorPicker = document.getElementById('colorPicker');
+            const blurSliderContainer = document.getElementById('blurSliderContainer');
+            const blurSlider = document.getElementById('blurSlider');
+            const blurValue = document.getElementById('blurValue');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const normalPreviewContainer = document.getElementById('normalPreviewContainer');
+            const cropPreviewContainer = document.getElementById('cropPreviewContainer');
+            const cropImage = document.getElementById('cropImage');
+            const cropBox = document.getElementById('cropBox');
+            const cropPreview = document.getElementById('cropPreview');
+            
+            let currentOption = 'blur';
+            let originalImage = null;
+            let cropBoxPosition = { x: 0, y: 0 };
+            let isDragging = false;
+            let cropSize = 0;
+            let imageScale = 1;
+            let maxCropPositionX = 0;
+            let maxCropPositionY = 0;
+            
+            // Function to update UI states based on current option
+            function updateUIForCurrentOption() {
+                // Reset all UI states first
+                colorPickerContainer.style.display = 'none';
+                blurSliderContainer.style.display = 'none';
+                normalPreviewContainer.style.display = 'none';
+                cropPreviewContainer.style.display = 'none';
+                
+                // Set active tab
+                optionTabs.forEach(tab => {
+                    if (tab.dataset.option === currentOption) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
+                });
+                
+                // Show relevant UI elements based on current option
+                if (currentOption === 'blur') {
+                    blurSliderContainer.style.display = 'block';
+                    normalPreviewContainer.style.display = 'grid';
+                } else if (currentOption === 'color') {
+                    colorPickerContainer.style.display = 'block';
+                    normalPreviewContainer.style.display = 'grid';
+                } else if (currentOption === 'square') {
+                    cropPreviewContainer.style.display = 'grid';
+                    setupCropBox();
+                } else {
+                    // For resize option
+                    normalPreviewContainer.style.display = 'grid';
+                }
+            }
+            
+            // Update blur value display
+            blurSlider.addEventListener('input', function() {
+                const rawValue = parseInt(blurSlider.value);
+                
+                // Calculate the amplified value to show a more accurate representation
+                let displayValue;
+                if (rawValue <= 5) {
+                    displayValue = rawValue;
+                } else if (rawValue <= 15) {
+                    displayValue = Math.round(rawValue * 1.5);
+                } else {
+                    displayValue = Math.round(rawValue * 2.2);
+                }
+                
+                blurValue.textContent = displayValue + 'px';
+                
+                if (currentOption === 'blur') {
+                    processImage();
+                }
+            });
+            
+            // Handle file upload
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // Show the options container
+                        optionsContainer.style.display = 'block';
+                        
+                        // Load the image
+                        const img = new Image();
+                        img.onload = function() {
+                            originalImage = img;
+                            originalPreview.src = img.src;
+                            cropImage.src = img.src;
+                            setupCropBox();
+                            
+                            // Update UI elements based on the current selected option
+                            updateUIForCurrentOption();
+                            
+                            processImage();
+                        };
+                        img.src = e.target.result;
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Handle drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#357abd';
+                uploadArea.style.background = '#e8f4ff';
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.style.borderColor = '#4A90E2';
+                uploadArea.style.background = '#f9fbff';
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#4A90E2';
+                uploadArea.style.background = '#f9fbff';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.match('image.*')) {
+                    fileInput.files = e.dataTransfer.files;
+                    const event = new Event('change');
+                    fileInput.dispatchEvent(event);
+                }
+            });
+            
+            // Set up the crop box for square crop
+            function setupCropBox() {
+                if (!originalImage) return;
+                
+                const containerWidth = cropImage.parentElement.clientWidth;
+                const imageWidth = originalImage.width;
+                const imageHeight = originalImage.height;
+                
+                // Scale the image to fit the container
+                imageScale = containerWidth / imageWidth;
+                const scaledHeight = imageHeight * imageScale;
+                
+                // Determine crop box size (smaller dimension)
+                cropSize = Math.min(imageWidth, imageHeight) * imageScale;
+                
+                // Set crop box dimensions
+                cropBox.style.width = cropSize + 'px';
+                cropBox.style.height = cropSize + 'px';
+                
+                // Center crop box
+                cropBoxPosition.x = (imageWidth * imageScale - cropSize) / 2;
+                cropBoxPosition.y = (scaledHeight - cropSize) / 2;
+                
+                // Set limits for dragging
+                maxCropPositionX = imageWidth * imageScale - cropSize;
+                maxCropPositionY = scaledHeight - cropSize;
+                
+                // Update crop box position
+                updateCropBoxPosition();
+                
+                // Update crop preview
+                updateCropPreview();
+            }
+            
+            // Update crop box position
+            function updateCropBoxPosition() {
+                cropBox.style.left = cropBoxPosition.x + 'px';
+                cropBox.style.top = cropBoxPosition.y + 'px';
+            }
+            
+            // Handle crop box dragging
+            cropBox.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startLeft = cropBoxPosition.x;
+                const startTop = cropBoxPosition.y;
+                
+                const onMouseMove = function(e) {
+                    if (!isDragging) return;
+                    
+                    // Calculate new position
+                    let newLeft = startLeft + (e.clientX - startX);
+                    let newTop = startTop + (e.clientY - startY);
+                    
+                    // Constrain to image boundaries
+                    newLeft = Math.max(0, Math.min(newLeft, maxCropPositionX));
+                    newTop = Math.max(0, Math.min(newTop, maxCropPositionY));
+                    
+                    // Update position
+                    cropBoxPosition.x = newLeft;
+                    cropBoxPosition.y = newTop;
+                    
+                    // Apply new position
+                    updateCropBoxPosition();
+                    
+                    // Update the preview
+                    updateCropPreview();
+                };
+                
+                const onMouseUp = function() {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+                
+                e.preventDefault();
+            });
+            
+            // Handle crop box touch events for mobile
+            cropBox.addEventListener('touchstart', function(e) {
+                if (e.touches.length !== 1) return;
+                
+                isDragging = true;
+                const touch = e.touches[0];
+                const startX = touch.clientX;
+                const startY = touch.clientY;
+                const startLeft = cropBoxPosition.x;
+                const startTop = cropBoxPosition.y;
+                
+                const onTouchMove = function(e) {
+                    if (!isDragging || e.touches.length !== 1) return;
+                    
+                    const touch = e.touches[0];
+                    
+                    // Calculate new position
+                    let newLeft = startLeft + (touch.clientX - startX);
+                    let newTop = startTop + (touch.clientY - startY);
+                    
+                    // Constrain to image boundaries
+                    newLeft = Math.max(0, Math.min(newLeft, maxCropPositionX));
+                    newTop = Math.max(0, Math.min(newTop, maxCropPositionY));
+                    
+                    // Update position
+                    cropBoxPosition.x = newLeft;
+                    cropBoxPosition.y = newTop;
+                    
+                    // Apply new position
+                    updateCropBoxPosition();
+                    
+                    // Update the preview
+                    updateCropPreview();
+                    
+                    e.preventDefault();
+                };
+                
+                const onTouchEnd = function() {
+                    isDragging = false;
+                    document.removeEventListener('touchmove', onTouchMove);
+                    document.removeEventListener('touchend', onTouchEnd);
+                };
+                
+                document.addEventListener('touchmove', onTouchMove);
+                document.addEventListener('touchend', onTouchEnd);
+                
+                e.preventDefault();
+            });
+            
+            // Update crop preview
+            function updateCropPreview() {
+                if (!originalImage) return;
+                
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // WhatsApp profile picture is 640x640
+                const targetSize = 640;
+                canvas.width = targetSize;
+                canvas.height = targetSize;
+                
+                // Calculate source coordinates
+                const sourceX = cropBoxPosition.x / imageScale;
+                const sourceY = cropBoxPosition.y / imageScale;
+                const sourceSize = cropSize / imageScale;
+                
+                // Draw the cropped image
+                ctx.drawImage(originalImage, sourceX, sourceY, sourceSize, sourceSize, 0, 0, targetSize, targetSize);
+                
+                // Update preview
+                cropPreview.src = canvas.toDataURL('image/png');
+            }
+            
+            // Handle option tabs
+            optionTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Update current option
+                    currentOption = this.dataset.option;
+                    
+                    // Update UI based on the new option
+                    updateUIForCurrentOption();
+                    
+                    // Process the image for preview
+                    if (currentOption !== 'square') {
+                        processImage();
+                    }
+                });
+            });
+            
+            // Handle color picker change
+            colorPicker.addEventListener('input', function() {
+                if (currentOption === 'color') {
+                    processImage();
+                }
+            });
+            
+            // Process the image based on selected option
+            function processImage() {
+                if (!originalImage) return;
+                
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // WhatsApp profile picture is 640x640
+                const targetSize = 640;
+                canvas.width = targetSize;
+                canvas.height = targetSize;
+                
+                // Get original image dimensions
+                const width = originalImage.width;
+                const height = originalImage.height;
+                
+                // Process based on selected option
+                switch (currentOption) {
+                    case 'blur':
+                        // Create a larger canvas for better blur effect at boundaries
+                        const blurCanvas = document.createElement('canvas');
+                        const blurCtx = blurCanvas.getContext('2d');
+                        
+                        // Get blur value from slider
+                        const blurAmount = parseInt(blurSlider.value);
+                        
+                        // Amplify the blur effect for higher intensity
+                        // Use an exponential curve for the blur amount to make it more dramatic at higher levels
+                        // This creates a more noticeable difference between slider positions
+                        const amplifiedBlur = blurAmount <= 5 
+                            ? blurAmount 
+                            : blurAmount <= 15 
+                                ? blurAmount * 1.5
+                                : blurAmount * 2.2; // Much stronger blur for higher values
+                        
+                        // Make the blur canvas much larger to avoid edge artifacts
+                        // The padding should be at least 3x the blur amount to ensure uniform blur
+                        const blurPadding = Math.max(amplifiedBlur * 3, 100);
+                        const enlargedSize = targetSize + blurPadding * 2;
+                        
+                        blurCanvas.width = enlargedSize;
+                        blurCanvas.height = enlargedSize;
+                        
+                        // Fill with white to avoid dark edges
+                        blurCtx.fillStyle = '#ffffff';
+                        blurCtx.fillRect(0, 0, enlargedSize, enlargedSize);
+                        
+                        // Calculate the scale for the image to fit within the target size while preserving aspect ratio
+                        const aspectRatio = width / height;
+                        let imageWidth, imageHeight;
+                        
+                        if (aspectRatio > 1) {
+                            // Landscape image
+                            imageWidth = targetSize;
+                            imageHeight = targetSize / aspectRatio;
+                        } else {
+                            // Portrait or square image
+                            imageHeight = targetSize;
+                            imageWidth = targetSize * aspectRatio;
+                        }
+                        
+                        // Center the image in the enlarged canvas for the blur background
+                        const centerX = blurPadding + (targetSize - imageWidth) / 2;
+                        const centerY = blurPadding + (targetSize - imageHeight) / 2;
+                        
+                        // Draw the full-size image in the center of the enlarged canvas for blurring
+                        blurCtx.drawImage(originalImage, 0, 0, width, height, centerX, centerY, imageWidth, imageHeight);
+                        
+                        // Create a copy of the non-blurred image for later use
+                        const originalCanvas = document.createElement('canvas');
+                        const originalCtx = originalCanvas.getContext('2d');
+                        originalCanvas.width = enlargedSize;
+                        originalCanvas.height = enlargedSize;
+                        originalCtx.drawImage(blurCanvas, 0, 0);
+                        
+                        // Calculate a larger scale for the background blur to ensure the entire blurred area fills the canvas
+                        // This ensures we don't see white edges when applying the blur
+                        const blurScale = Math.max((targetSize + amplifiedBlur * 4) / width, (targetSize + amplifiedBlur * 4) / height);
+                        const blurWidth = width * blurScale;
+                        const blurHeight = height * blurScale;
+                        
+                        // Center the larger blurred image
+                        const blurX = blurPadding + (targetSize - blurWidth) / 2;
+                        const blurY = blurPadding + (targetSize - blurHeight) / 2;
+                        
+                        // Clear and redraw with larger scale for blur
+                        blurCtx.clearRect(0, 0, enlargedSize, enlargedSize);
+                        blurCtx.fillStyle = '#ffffff';
+                        blurCtx.fillRect(0, 0, enlargedSize, enlargedSize);
+                        blurCtx.drawImage(originalImage, 0, 0, width, height, blurX, blurY, blurWidth, blurHeight);
+                        
+                        // Apply blur effect
+                        blurCtx.filter = `blur(${amplifiedBlur}px)`;
+                        blurCtx.globalAlpha = 1.0; // Full opacity for stronger blur effect
+                        blurCtx.drawImage(blurCanvas, 0, 0);
+                        
+                        // For higher blur values, apply a second pass to intensify the effect
+                        if (blurAmount > 15) {
+                            blurCtx.drawImage(blurCanvas, 0, 0);
+                        }
+                        
+                        blurCtx.globalAlpha = 1.0;
+                        blurCtx.filter = 'none';
+                        
+                        // Set up the destination canvas
+                        const finalCanvas = document.createElement('canvas');
+                        const finalCtx = finalCanvas.getContext('2d');
+                        finalCanvas.width = targetSize;
+                        finalCanvas.height = targetSize;
+                        
+                        // Draw the blurred background from the enlarged canvas
+                        finalCtx.drawImage(
+                            blurCanvas, 
+                            blurPadding, blurPadding, 
+                            targetSize, targetSize, 
+                            0, 0, 
+                            targetSize, targetSize
+                        );
+                        
+                        // Finally, draw the original non-blurred image on top
+                        finalCtx.drawImage(
+                            originalCanvas,
+                            centerX, centerY, 
+                            imageWidth, imageHeight,
+                            (targetSize - imageWidth) / 2, (targetSize - imageHeight) / 2,
+                            imageWidth, imageHeight
+                        );
+                        
+                        // Copy the final result to the main canvas
+                        ctx.drawImage(finalCanvas, 0, 0);
+                        break;
+                        
+                    case 'color':
+                        // Fill with selected color
+                        ctx.fillStyle = colorPicker.value;
+                        ctx.fillRect(0, 0, targetSize, targetSize);
+                        
+                        // Draw the main image centered
+                        const colorAspectRatio = width / height;
+                        let colorDrawWidth, colorDrawHeight;
+                        
+                        if (colorAspectRatio > 1) {
+                            colorDrawWidth = targetSize;
+                            colorDrawHeight = targetSize / colorAspectRatio;
+                        } else {
+                            colorDrawHeight = targetSize;
+                            colorDrawWidth = targetSize * colorAspectRatio;
+                        }
+                        
+                        const colorDrawX = (targetSize - colorDrawWidth) / 2;
+                        const colorDrawY = (targetSize - colorDrawHeight) / 2;
+                        
+                        ctx.drawImage(originalImage, colorDrawX, colorDrawY, colorDrawWidth, colorDrawHeight);
+                        break;
+                        
+                    case 'resize':
+                        // Automatically resize and center the image
+                        const resizeAspectRatio = width / height;
+                        let resizeWidth, resizeHeight;
+                        
+                        // Calculate dimensions to fit the target size while maintaining aspect ratio
+                        if (resizeAspectRatio > 1) {
+                            // Landscape image
+                            resizeWidth = targetSize;
+                            resizeHeight = targetSize / resizeAspectRatio;
+                        } else {
+                            // Portrait or square image
+                            resizeHeight = targetSize;
+                            resizeWidth = targetSize * resizeAspectRatio;
+                        }
+                        
+                        // Center the image
+                        const resizeX = (targetSize - resizeWidth) / 2;
+                        const resizeY = (targetSize - resizeHeight) / 2;
+                        
+                        // Fill the background with white
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, targetSize, targetSize);
+                        
+                        // Draw the image at the calculated position
+                        ctx.drawImage(originalImage, 0, 0, width, height, resizeX, resizeY, resizeWidth, resizeHeight);
+                        break;
+                }
+                
+                // Update preview
+                whatsappPreview.src = canvas.toDataURL('image/png');
+                
+                // Enable download button
+                downloadBtn.disabled = false;
+            }
+            
+            // Handle download button
+            downloadBtn.addEventListener('click', function() {
+                let imageToDownload = null;
+                
+                if (currentOption === 'square') {
+                    imageToDownload = cropPreview.src;
+                } else {
+                    imageToDownload = whatsappPreview.src;
+                }
+                
+                if (!imageToDownload) return;
+                
+                const link = document.createElement('a');
+                link.download = 'whatsapp-profile-picture.png';
+                link.href = imageToDownload;
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html> 
